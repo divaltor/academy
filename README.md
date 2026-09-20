@@ -1,3 +1,5 @@
+![Academy — Eclipse first, the rest nowhere](.github/assets/academy-banner.png)
+
 # Academy
 
 An OpenCode plugin that turns coding agents into a Tracen Academy roster: specialist teammates trained to research, build, review, and win by a nose.
