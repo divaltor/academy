@@ -47,7 +47,9 @@ Each agent accepts `name`, `color`, and `model`. Colors may be six-digit hex val
 | Dantsu | `openai/gpt-5.6-terra#low`    |
 | Bellno | `openai/gpt-5.6-sol#high`     |
 
-> [!WARNING] An agent's name is also its session ID. Renaming it can prevent existing sessions from continuing.
+> [!WARNING]
+>
+> An agent's name is also its session ID. Renaming it can prevent existing sessions from continuing.
 
 Session tools are available under Code Mode's `academy` namespace. Only the root primary session can create threads; omit `agent` for a general coding session. `find_thread` searches Academy-created sessions only.
 
