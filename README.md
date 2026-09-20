@@ -28,11 +28,10 @@ Add Academy to `opencode.jsonc`. Agent names are optional; omit `agentNames` or 
 ```jsonc
 {
   "$schema": "https://opencode.ai/config.json",
-  "plugin": [
-    [
-      // Use "./plugins/academy" instead when loading a local copy.
-      "academy",
-      {
+  "plugins": [
+    {
+      "package": "@divaltor/academy",
+      "options": {
         "agentNames": {
           "diana": "Diana",
           "agnes": "Agnes",
@@ -41,7 +40,7 @@ Add Academy to `opencode.jsonc`. Agent names are optional; omit `agentNames` or 
           "bellno": "Bellno",
         },
       },
-    ],
+    },
   ],
 }
 ```
@@ -68,6 +67,10 @@ bun run typecheck  # tsc --noEmit
 ```
 
 Install git hooks once with `bunx lefthook install`.
+
+## Release
+
+Update `version` in `package.json`, commit it, then push the matching tag. For example, version `0.2.0` must use tag `v0.2.0`. GitHub Actions validates and publishes the package through npm trusted publishing.
 
 ## License
 
