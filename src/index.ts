@@ -27,6 +27,15 @@ const setup = Effect.fn("Academy.setup")(function* setup(ctx: Plugin.Context) {
   const agentNames = new Map(
     agents.map((agent) => [agent.name, options[agent.id]?.name ?? agent.name])
   );
+  const agentID = (id: (typeof agents)[number]["id"]) =>
+    Agent.ID.make(options[id]?.name ?? id);
+  const configuredAgentIDs = agents.map((agent) => agentID(agent.id));
+
+  if (new Set(configuredAgentIDs).size !== configuredAgentIDs.length) {
+    return yield* Effect.die(
+      new Error("Academy agent names must produce unique agent IDs")
+    );
+  }
 
   yield* ctx.mcp.transform((editor) => {
     if (Option.isNone(githubToken)) {
@@ -50,7 +59,13 @@ const setup = Effect.fn("Academy.setup")(function* setup(ctx: Plugin.Context) {
     }
 
     for (const definition of agents) {
-      editor.update(definition.id, (agent) => {
+      if (agentID(definition.id) !== definition.id) {
+        editor.remove(definition.id);
+      }
+    }
+
+    for (const definition of agents) {
+      editor.update(agentID(definition.id), (agent) => {
         agent.name = Agent.Name.make(
           agentNames.get(definition.name) ?? definition.name
         );
@@ -62,9 +77,18 @@ const setup = Effect.fn("Academy.setup")(function* setup(ctx: Plugin.Context) {
           /\b(?:Rudolf|Agnes|Bourbon|Cafe|Dantsu|Bellno)\b/gu,
           (name) => agentNames.get(name) ?? name
         );
-        agent.permissions = definition.permissions.map((permission) => ({
-          ...permission,
-        }));
+        agent.permissions = definition.permissions.map((permission) => {
+          const referencedAgent = agents.find(
+            (candidate) => candidate.id === permission.resource
+          );
+
+          return {
+            ...permission,
+            resource: referencedAgent
+              ? agentID(referencedAgent.id)
+              : permission.resource,
+          };
+        });
         agent.model = definition.model
           ? {
               id: Model.ID.make(definition.model.id),
@@ -75,7 +99,7 @@ const setup = Effect.fn("Academy.setup")(function* setup(ctx: Plugin.Context) {
       });
     }
 
-    editor.default("rudolf");
+    editor.default(agentID("rudolf"));
   });
 });
 
