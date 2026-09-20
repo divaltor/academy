@@ -21,18 +21,32 @@ Academy registers a focused roster of Umamusume agents:
 - Synchronous transforms: load data before registering, `reload()` when inputs change
 - Bun + Effect + TypeScript, with `lint` and `typecheck` gates
 
-## Getting started
+## Configuration
 
-Add the plugin to `opencode.jsonc`:
+Add Academy to `opencode.jsonc`. Agent names are optional; omit `agentNames` or any entry to keep the Umamusume defaults:
 
 ```jsonc
 {
   "$schema": "https://opencode.ai/config.json",
-  "plugins": ["academy", "./plugins/academy"],
+  "plugin": [
+    [
+      // Use "./plugins/academy" instead when loading a local copy.
+      "academy",
+      {
+        "agentNames": {
+          "diana": "Diana",
+          "agnes": "Agnes",
+          "cafe": "Cafe",
+          "dantsu": "Dantsu",
+          "bellno": "Bellno",
+        },
+      },
+    ],
+  ],
 }
 ```
 
-Local paths resolve relative to the config file. See the [plugin docs](https://opencode.ai/v2/docs/build/plugins) to learn more.
+Custom names change the agents' displayed names and persona references. Their stable IDs (`diana`, `agnes`, `cafe`, `dantsu`, and `bellno`) remain unchanged for permissions and invocation. Local paths resolve relative to the config file. See the [plugin docs](https://opencode.ai/v2/docs/build/plugins) to learn more.
 
 ### Private GitHub repositories
 

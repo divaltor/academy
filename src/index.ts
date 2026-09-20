@@ -1,12 +1,32 @@
 import { Agent, Model, Plugin, Provider } from "@opencode/plugin/effect";
-import { Config, Effect, Option, Redacted } from "effect";
+import { Config, Effect, Option, Redacted, Schema } from "effect";
 
 import { agents } from "./agents";
+
+const AcademyOptions = Schema.Struct({
+  agentNames: Schema.optionalKey(
+    Schema.Struct({
+      agnes: Schema.optionalKey(Schema.NonEmptyString),
+      bellno: Schema.optionalKey(Schema.NonEmptyString),
+      cafe: Schema.optionalKey(Schema.NonEmptyString),
+      dantsu: Schema.optionalKey(Schema.NonEmptyString),
+      diana: Schema.optionalKey(Schema.NonEmptyString),
+    })
+  ),
+});
 
 const setup = Effect.fn("Academy.setup")(function* setup(ctx: Plugin.Context) {
   const githubToken = yield* Config.option(
     Config.redacted("GITHUB_TOKEN")
   ).pipe(Effect.orDie);
+  const options = yield* Schema.decodeUnknownEffect(AcademyOptions, {
+    onExcessProperty: "error",
+  })(ctx.options).pipe(Effect.orDie);
+  const configuredNames: Readonly<Record<string, string | undefined>> =
+    options.agentNames ?? {};
+  const agentNames = new Map(
+    agents.map((agent) => [agent.name, configuredNames[agent.id] ?? agent.name])
+  );
 
   yield* ctx.mcp.transform((editor) => {
     if (Option.isNone(githubToken)) {
@@ -31,11 +51,16 @@ const setup = Effect.fn("Academy.setup")(function* setup(ctx: Plugin.Context) {
 
     for (const definition of agents) {
       editor.update(definition.id, (agent) => {
-        agent.name = Agent.Name.make(definition.name);
+        agent.name = Agent.Name.make(
+          agentNames.get(definition.name) ?? definition.name
+        );
         agent.description = definition.description;
         agent.mode = definition.mode;
         agent.color = definition.color;
-        agent.system = definition.system;
+        agent.system = definition.system.replaceAll(
+          /\b(?:Diana|Agnes|Cafe|Dantsu|Bellno)\b/gu,
+          (name) => agentNames.get(name) ?? name
+        );
         agent.permissions = definition.permissions.map((permission) => ({
           ...permission,
         }));
