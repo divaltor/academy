@@ -32,6 +32,7 @@ Add Academy to `opencode.jsonc`. All options are optional:
         },
         "experimental": {
           "communication": {
+            "enabled": true,
             "thread_summary": "opencode-go/glm-5.3-flash",
           },
         },
@@ -58,7 +59,7 @@ Each agent under `agents` accepts `name`, `color`, and `model`. Colors may be si
 >
 > An agent's name is also its session ID. Renaming it can prevent existing sessions from continuing.
 
-Session tools are experimental and off by default; set `experimental.communication` to enable them. They are available under Code Mode's `academy` namespace. Only the root primary session can create threads; omit `agent` for a general coding session.
+Session tools are experimental and off by default; set `experimental.communication.enabled` to `true` to enable them. They are available under Code Mode's `academy` namespace. Only the root primary session can create threads; omit `agent` for a general coding session.
 
 > [!NOTE]
 >

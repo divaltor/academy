@@ -54,6 +54,7 @@ const setup = Effect.fn("Academy.setup")(function* setup(ctx: Plugin.Context) {
     Agent.ID.make(agentOptions[id]?.name ?? id);
   const configuredAgentIDs = agents.map((agent) => agentID(agent.id));
   const communication = options.experimental?.communication;
+  const communicationEnabled = communication?.enabled === true;
 
   if (new Set(configuredAgentIDs).size !== configuredAgentIDs.length) {
     return yield* Effect.die(
@@ -102,7 +103,7 @@ const setup = Effect.fn("Academy.setup")(function* setup(ctx: Plugin.Context) {
         agent.color =
           agentOptions[definition.id]?.color ?? agent.color ?? definition.color;
         const base =
-          definition.id === "rudolf" && communication !== undefined
+          definition.id === "rudolf" && communicationEnabled
             ? definition.system.replace(
                 "# Communication",
                 `${rudolfCommunicationPrompt}\n\n# Communication`
@@ -133,7 +134,7 @@ const setup = Effect.fn("Academy.setup")(function* setup(ctx: Plugin.Context) {
     editor.default(agentID("rudolf"));
   });
 
-  if (communication !== undefined) {
+  if (communication !== undefined && communicationEnabled) {
     yield* SessionCommunication.register(ctx, communication, agentID("rudolf"));
   }
 });

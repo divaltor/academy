@@ -43,6 +43,7 @@ export namespace SessionCommunication {
   );
 
   export const Options = Schema.Struct({
+    enabled: Schema.optionalKey(Schema.Boolean),
     thread_summary: Schema.optionalKey(ModelReference),
   });
 
