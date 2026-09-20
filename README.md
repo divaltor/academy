@@ -28,7 +28,7 @@ Add Academy to `opencode.jsonc`. All options are optional:
           "color": "#8994B8",
         },
         "communication": {
-          "thread_summary": "opencode/glm-5.3-flash",
+          "thread_summary": "opencode-go/glm-5.3-flash",
         },
       },
     },

@@ -29,7 +29,7 @@ export namespace SessionCommunication {
   >[number];
 
   const storagePrefix = "communication/thread/";
-  const defaultReaderModel = "opencode/glm-5.3-flash";
+  const defaultReaderModel = "opencode-go/glm-5.3-flash";
   const ModelReference = Schema.NonEmptyString.check(
     Schema.isPattern(/^[^/#]+\/[^#]+(?:#[^#]+)?$/u)
   );
