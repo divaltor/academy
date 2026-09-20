@@ -23,10 +23,12 @@ Add Academy to `opencode.jsonc`. All options are optional:
     {
       "package": "@divaltor/academy",
       "options": {
-        "rudolf": {
-          "name": "Emperor",
-          "color": "#8994B8",
-          "model": "anthropic/claude-opus-4-1#max",
+        "agents": {
+          "rudolf": {
+            "name": "Emperor",
+            "color": "#8994B8",
+            "model": "anthropic/claude-opus-4-1#max",
+          },
         },
         "communication": {
           "thread_summary": "opencode-go/glm-5.3-flash",
@@ -38,9 +40,9 @@ Add Academy to `opencode.jsonc`. All options are optional:
 }
 ```
 
-Each agent accepts `name`, `color`, and `model`. Colors may be six-digit hex values or OpenCode theme colors. Model references use `provider/model` or `provider/model#variant`.
+Each agent under `agents` accepts `name`, `color`, and `model`. Colors may be six-digit hex values or OpenCode theme colors. Model references use `provider/model` or `provider/model#variant`.
 
-Set `use_fff` to `true` to replace OpenCode's built-in `glob` and `grep` tools globally with [FFF](https://github.com/d-kimuson/fff.nvim) for every agent. This requires a platform supported by `@ff-labs/fff-bun`.
+`use_fff` replaces OpenCode's built-in `glob` and `grep` tools globally with [FFF](https://github.com/d-kimuson/fff.nvim) for every agent. Enabled by default; set to `false` to keep the built-in tools. This requires a platform supported by `@ff-labs/fff-bun`.
 
 | Agent  | Default model                 |
 | ------ | ----------------------------- |

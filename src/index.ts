@@ -18,13 +18,17 @@ const AgentOptions = Schema.Struct({
   name: Schema.optionalKey(Schema.NonEmptyString),
 });
 
-const AcademyOptions = Schema.Struct({
+const AgentsOptions = Schema.Struct({
   agnes: Schema.optionalKey(AgentOptions),
   bellno: Schema.optionalKey(AgentOptions),
   cafe: Schema.optionalKey(AgentOptions),
-  communication: Schema.optionalKey(SessionCommunication.Options),
   dantsu: Schema.optionalKey(AgentOptions),
   rudolf: Schema.optionalKey(AgentOptions),
+});
+
+const AcademyOptions = Schema.Struct({
+  agents: Schema.optionalKey(AgentsOptions),
+  communication: Schema.optionalKey(SessionCommunication.Options),
   use_fff: Schema.optionalKey(Schema.Boolean),
 });
 
@@ -35,11 +39,15 @@ const setup = Effect.fn("Academy.setup")(function* setup(ctx: Plugin.Context) {
   const options = yield* Schema.decodeUnknownEffect(AcademyOptions, {
     onExcessProperty: "error",
   })(ctx.options).pipe(Effect.orDie);
+  const agentOptions = options.agents ?? {};
   const agentNames = new Map(
-    agents.map((agent) => [agent.name, options[agent.id]?.name ?? agent.name])
+    agents.map((agent) => [
+      agent.name,
+      agentOptions[agent.id]?.name ?? agent.name,
+    ])
   );
   const agentID = (id: (typeof agents)[number]["id"]) =>
-    Agent.ID.make(options[id]?.name ?? id);
+    Agent.ID.make(agentOptions[id]?.name ?? id);
   const configuredAgentIDs = agents.map((agent) => agentID(agent.id));
 
   if (new Set(configuredAgentIDs).size !== configuredAgentIDs.length) {
@@ -64,7 +72,7 @@ const setup = Effect.fn("Academy.setup")(function* setup(ctx: Plugin.Context) {
     });
   });
 
-  if (options.use_fff) {
+  if (options.use_fff ?? true) {
     yield* FffTools.register(ctx);
   }
 
@@ -87,7 +95,7 @@ const setup = Effect.fn("Academy.setup")(function* setup(ctx: Plugin.Context) {
         agent.description = definition.description;
         agent.mode = definition.mode;
         agent.color =
-          options[definition.id]?.color ?? agent.color ?? definition.color;
+          agentOptions[definition.id]?.color ?? agent.color ?? definition.color;
         agent.system = definition.system.replaceAll(
           /\b(?:Rudolf|Agnes|Cafe|Dantsu|Bellno)\b/gu,
           (name) => agentNames.get(name) ?? name
@@ -105,7 +113,7 @@ const setup = Effect.fn("Academy.setup")(function* setup(ctx: Plugin.Context) {
           };
         });
         agent.model = parseModel(
-          options[definition.id]?.model ?? definition.model
+          agentOptions[definition.id]?.model ?? definition.model
         );
       });
     }
