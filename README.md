@@ -1,10 +1,10 @@
 # Academy
 
-An OpenCode plugin inspired by Tracen Academy from _Umamusume: Pretty Derby_.
+An OpenCode plugin that turns coding agents into a Tracen Academy roster: specialist teammates trained to research, build, review, and win by a nose.
 
 > "Eclipse first, the rest nowhere."
 
-Tracen Academy is a boarding school that trains horse girls to debut in the Twinkle Series. Academy does the same for your agents — small, disciplined tools, commands, and hooks that train OpenCode to win by a nose.
+Inspired by _Umamusume: Pretty Derby_, Academy gives OpenCode a focused team of agents with distinct roles, personalities, and permissions.
 
 Academy registers a focused roster of Umamusume agents:
 
@@ -13,13 +13,6 @@ Academy registers a focused roster of Umamusume agents:
 - **Cafe** — Librarian-style external researcher
 - **Dantsu** — Finder-style codebase search specialist
 - **Bellno** — general code reviewer
-
-## Highlights
-
-- One Effect-native entry point: `src/index.ts` exporting `Plugin.define({ id: "academy", effect })`
-- Agent registration through `ctx.agent.transform`, with Diana selected by default
-- Synchronous transforms: load data before registering, `reload()` when inputs change
-- Bun + Effect + TypeScript, with `lint` and `typecheck` gates
 
 ## Configuration
 
@@ -58,19 +51,9 @@ opencode
 
 Keep the token out of `opencode.jsonc` and repository files. Agnes and Dantsu cannot access the GitHub MCP tools; Cafe also has no shell access.
 
-## Develop
+## Contributing
 
-```bash
-bun install
-bun run lint       # oxlint via Ultracite
-bun run typecheck  # tsc --noEmit
-```
-
-Install git hooks once with `bunx lefthook install`.
-
-## Release
-
-Update `version` in `package.json`, commit it, then push the matching tag. For example, version `0.2.0` must use tag `v0.2.0`. GitHub Actions validates and publishes the package through npm trusted publishing.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for local development, pull requests, and publishing releases.
 
 ## License
 
