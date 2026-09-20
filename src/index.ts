@@ -2,6 +2,7 @@ import { Agent, Model, Plugin } from "@opencode/plugin/effect";
 import { Config, Effect, Option, Redacted, Schema } from "effect";
 
 import { agents } from "./agents";
+import { FffTools } from "./fff-tools";
 import { SessionCommunication } from "./session-communication";
 
 const ModelReference = Schema.NonEmptyString.check(
@@ -24,6 +25,7 @@ const AcademyOptions = Schema.Struct({
   communication: Schema.optionalKey(SessionCommunication.Options),
   dantsu: Schema.optionalKey(AgentOptions),
   rudolf: Schema.optionalKey(AgentOptions),
+  use_fff: Schema.optionalKey(Schema.Boolean),
 });
 
 const setup = Effect.fn("Academy.setup")(function* setup(ctx: Plugin.Context) {
@@ -61,6 +63,10 @@ const setup = Effect.fn("Academy.setup")(function* setup(ctx: Plugin.Context) {
       url: "https://api.githubcopilot.com/mcp/readonly",
     });
   });
+
+  if (options.use_fff) {
+    yield* FffTools.register(ctx);
+  }
 
   yield* ctx.agent.transform((editor) => {
     for (const id of ["build", "plan", "explore", "general"]) {

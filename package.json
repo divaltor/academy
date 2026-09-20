@@ -29,7 +29,9 @@
     "fix": "ultracite fix"
   },
   "dependencies": {
+    "@ff-labs/fff-bun": "0.10.6",
     "@opencode/plugin": "2.0.11",
+    "@opencode/schema": "2.0.11",
     "effect": "4.0.0-rc.112"
   },
   "devDependencies": {

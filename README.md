@@ -31,6 +31,7 @@ Add Academy to `opencode.jsonc`. All options are optional:
         "communication": {
           "thread_summary": "opencode-go/glm-5.3-flash",
         },
+        "use_fff": true,
       },
     },
   ],
@@ -38,6 +39,8 @@ Add Academy to `opencode.jsonc`. All options are optional:
 ```
 
 Each agent accepts `name`, `color`, and `model`. Colors may be six-digit hex values or OpenCode theme colors. Model references use `provider/model` or `provider/model#variant`.
+
+Set `use_fff` to `true` to replace OpenCode's built-in `glob` and `grep` tools globally with [FFF](https://github.com/d-kimuson/fff.nvim) for every agent. This requires a platform supported by `@ff-labs/fff-bun`.
 
 | Agent  | Default model                 |
 | ------ | ----------------------------- |
