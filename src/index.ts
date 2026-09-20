@@ -17,6 +17,7 @@ const AcademyOptions = Schema.Struct({
       cafe: Schema.optionalKey(Schema.NonEmptyString),
       dantsu: Schema.optionalKey(Schema.NonEmptyString),
       diana: Schema.optionalKey(Schema.NonEmptyString),
+      rudolf: Schema.optionalKey(Schema.NonEmptyString),
     })
   ),
   agnes: Schema.optionalKey(AgentOptions),
@@ -25,6 +26,7 @@ const AcademyOptions = Schema.Struct({
   cafe: Schema.optionalKey(AgentOptions),
   dantsu: Schema.optionalKey(AgentOptions),
   diana: Schema.optionalKey(AgentOptions),
+  rudolf: Schema.optionalKey(AgentOptions),
 });
 
 const setup = Effect.fn("Academy.setup")(function* setup(ctx: Plugin.Context) {
@@ -38,7 +40,11 @@ const setup = Effect.fn("Academy.setup")(function* setup(ctx: Plugin.Context) {
   const agentNames = new Map(
     agents.map((agent) => [
       agent.name,
-      options[agent.id]?.name ?? legacyNames[agent.id] ?? agent.name,
+      options[agent.id]?.name ??
+        (agent.id === "rudolf" ? options.diana?.name : undefined) ??
+        legacyNames[agent.id] ??
+        (agent.id === "rudolf" ? legacyNames.diana : undefined) ??
+        agent.name,
     ])
   );
 
@@ -59,7 +65,7 @@ const setup = Effect.fn("Academy.setup")(function* setup(ctx: Plugin.Context) {
   });
 
   yield* ctx.agent.transform((editor) => {
-    for (const id of ["build", "plan", "explore", "general"]) {
+    for (const id of ["build", "plan", "explore", "general", "diana"]) {
       editor.remove(id);
     }
 
@@ -71,7 +77,10 @@ const setup = Effect.fn("Academy.setup")(function* setup(ctx: Plugin.Context) {
         agent.description = definition.description;
         agent.mode = definition.mode;
         agent.color =
-          options[definition.id]?.color ?? agent.color ?? definition.color;
+          options[definition.id]?.color ??
+          (definition.id === "rudolf" ? options.diana?.color : undefined) ??
+          agent.color ??
+          definition.color;
         agent.system = definition.system.replaceAll(
           /\b(?:Rudolf|Agnes|Bourbon|Cafe|Dantsu|Bellno)\b/gu,
           (name) => agentNames.get(name) ?? name
@@ -89,7 +98,7 @@ const setup = Effect.fn("Academy.setup")(function* setup(ctx: Plugin.Context) {
       });
     }
 
-    editor.default("diana");
+    editor.default("rudolf");
   });
 });
 

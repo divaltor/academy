@@ -3,7 +3,7 @@ import bellnoSystem from "./agents/bellno.txt" with { type: "text" };
 import bourbonSystem from "./agents/bourbon.txt" with { type: "text" };
 import cafeSystem from "./agents/cafe.txt" with { type: "text" };
 import dantsuSystem from "./agents/dantsu.txt" with { type: "text" };
-import dianaSystem from "./agents/diana.txt" with { type: "text" };
+import rudolfSystem from "./agents/rudolf.txt" with { type: "text" };
 
 interface Permission {
   readonly action: string;
@@ -17,7 +17,7 @@ const agentIds = [
   "bourbon",
   "cafe",
   "dantsu",
-  "diana",
+  "rudolf",
 ] as const;
 
 interface AcademyAgent {
@@ -44,7 +44,7 @@ export const agents: readonly AcademyAgent[] = [
     color: "#6678A4",
     description:
       "Primary agent for scoped implementation, research, and delegation.",
-    id: "diana",
+    id: "rudolf",
     mode: "primary",
     name: "Rudolf",
     permissions: [
@@ -63,7 +63,7 @@ export const agents: readonly AcademyAgent[] = [
       { action: "subagent", effect: "allow", resource: "bellno" },
       { action: "subagent", effect: "allow", resource: "bourbon" },
     ],
-    system: dianaSystem,
+    system: rudolfSystem,
   },
   {
     color: "#f6c177",
