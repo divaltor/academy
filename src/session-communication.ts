@@ -468,8 +468,8 @@ export namespace SessionCommunication {
 
         editor.add({
           description:
-            "Use when a known session's conversation or result is needed. Without question, returns its active context directly. With question, summarizes via the thread_summary model in a dedicated session, since plugin calls carry no session for provider routing; use this instead of loading a long transcript when only specific information is needed.",
-          execute: (input) =>
+            "Use when a known session's conversation or result is needed. Without question, returns its active context directly. With question, summarizes via the thread_summary model, or the calling session's model when unset; opencode-go models route through a dedicated session, since plugin calls carry no session for provider routing. Use this instead of loading a long transcript when only specific information is needed.",
+          execute: (input, context) =>
             safe(
               Effect.gen(function* readThread() {
                 const messages = yield* ctx.session.context({
@@ -493,7 +493,14 @@ export namespace SessionCommunication {
                   "Transcript:",
                   transcript.slice(-80_000),
                 ].join("\n\n");
-                const reference = options.thread_summary ?? defaultReaderModel;
+                const current = yield* ctx.session.get({
+                  sessionID: context.sessionID,
+                });
+                const reference =
+                  options.thread_summary ??
+                  (current.model
+                    ? `${current.model.providerID}/${current.model.id}${current.model.variant ? `#${current.model.variant}` : ""}`
+                    : defaultReaderModel);
                 const ref = Model.Ref.parse(reference);
                 if (ref.providerID !== "opencode-go") {
                   const result = yield* ctx.generate.text({

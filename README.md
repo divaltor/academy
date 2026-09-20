@@ -58,6 +58,10 @@ Session tools are available under Code Mode's `academy` namespace. Only the root
 
 > [!NOTE]
 >
+> `read_thread` with a question summarizes via the `communication.thread_summary` model, or the calling session's model when unset. Models on `opencode-go` cannot use stateless generation (the provider requires session routing headers that only a session request carries), so Academy answers through a dedicated `Academy summary <model>` session via transient `session.generate` — no transcript writes, but the session stays visible in the session list because the plugin API exposes neither archive nor delete for it.
+
+> [!NOTE]
+>
 > `find_thread` currently searches Academy-created sessions only. OpenCode's HTTP client can list persisted sessions, but the plugin context does not yet expose `ctx.session.list`, so Academy cannot safely discover sessions created before the plugin was installed. We are waiting for upstream support rather than reading OpenCode's private SQLite database or connecting back to the server through a separate client.
 >
 > Tracking: [#43517](https://github.com/anomalyco/opencode/issues/43517), [#44155](https://github.com/anomalyco/opencode/issues/44155), [#43556](https://github.com/anomalyco/opencode/pull/43556), and [#46690](https://github.com/anomalyco/opencode/pull/46690).
