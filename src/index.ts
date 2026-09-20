@@ -2,10 +2,7 @@ import { Agent, Model, Plugin, Provider } from "@opencode/plugin/effect";
 import { Config, Effect, Option, Redacted, Schema } from "effect";
 
 import { agents } from "./agents";
-import {
-  CommunicationOptionsSchema,
-  registerSessionCommunication,
-} from "./session-communication";
+import { SessionCommunication } from "./session-communication";
 
 const AgentOptions = Schema.Struct({
   color: Schema.optionalKey(Agent.Color),
@@ -17,7 +14,7 @@ const AcademyOptions = Schema.Struct({
   bellno: Schema.optionalKey(AgentOptions),
   bourbon: Schema.optionalKey(AgentOptions),
   cafe: Schema.optionalKey(AgentOptions),
-  communication: Schema.optionalKey(CommunicationOptionsSchema),
+  communication: Schema.optionalKey(SessionCommunication.Options),
   dantsu: Schema.optionalKey(AgentOptions),
   rudolf: Schema.optionalKey(AgentOptions),
 });
@@ -107,7 +104,7 @@ const setup = Effect.fn("Academy.setup")(function* setup(ctx: Plugin.Context) {
     editor.default(agentID("rudolf"));
   });
 
-  yield* registerSessionCommunication(ctx, options.communication ?? {});
+  yield* SessionCommunication.register(ctx, options.communication ?? {});
 });
 
 export default Plugin.define({

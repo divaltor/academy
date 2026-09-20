@@ -35,7 +35,7 @@ Optimize the design for the normal flow. If the happy path is 95% of behavior, i
 - Rely on type inference; annotate only at exports and boundaries.
 - Avoid the `any` type.
 - Prefer `const`; use ternaries or early returns instead of reassignment.
-- Never alias imports (`import { x as y }`) and never use star imports.
+- Never alias imports (`import { x as y }`) and never use star imports. Group module exports in one `export namespace <CanonicalName>` block (name declared once at the source); consumers use named imports of that namespace.
 - Prefer functional array methods (`map`, `filter`, `flatMap`) over `for` loops.
 - Comments are rare and explain why, not what.
 - Name recurring or spec-defined values as consts or enums; inline self-explanatory one-off literals.
