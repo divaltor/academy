@@ -62,9 +62,7 @@ export namespace SessionCommunication {
   });
 
   const FindThreadInput = Schema.Struct({
-    limit: Schema.optionalKey(
-      Schema.Int.check(Schema.isBetween({ maximum: 20, minimum: 1 }))
-    ),
+    limit: Schema.optionalKey(Schema.Number),
     query: Schema.optionalKey(Schema.String),
   });
 
@@ -258,6 +256,15 @@ export namespace SessionCommunication {
           execute: (input) =>
             safe(
               Effect.gen(function* findThread() {
+                if (
+                  input.limit !== undefined &&
+                  (!Number.isInteger(input.limit) ||
+                    input.limit < 1 ||
+                    input.limit > 20)
+                ) {
+                  return failure("limit must be an integer between 1 and 20");
+                }
+
                 return {
                   content: JSON.stringify(
                     findThreadRecords(
