@@ -9,8 +9,11 @@ export namespace SessionCommunication {
   const ThreadRecordSchema = Schema.Struct({
     agent: Schema.optionalKey(Agent.ID),
     created: Schema.Number,
+    depth: Schema.optionalKey(Schema.Number),
+    detached: Schema.optionalKey(Schema.Boolean),
     id: SessionID,
-    parentID: SessionID,
+    model: Schema.optionalKey(Schema.String),
+    parentID: Schema.optionalKey(SessionID),
     prompt: Schema.String,
     title: Schema.String,
   });
@@ -19,8 +22,11 @@ export namespace SessionCommunication {
   interface ThreadSearchRecord {
     readonly agent?: string;
     readonly created: number;
+    readonly depth?: number;
+    readonly detached?: boolean;
     readonly id: string;
-    readonly parentID: string;
+    readonly model?: string;
+    readonly parentID?: string;
     readonly prompt: string;
     readonly title: string;
   }
@@ -31,6 +37,7 @@ export namespace SessionCommunication {
   const storagePrefix = "communication/thread/";
   const summaryPrefix = "communication/summary/";
   const defaultReaderModel = "opencode-go/glm-5.3-flash";
+  const maxThreadDepth = 5;
   const ModelReference = Schema.NonEmptyString.check(
     Schema.isPattern(/^[^/#]+\/[^#]+(?:#[^#]+)?$/u)
   );
@@ -43,6 +50,8 @@ export namespace SessionCommunication {
 
   const CreateThreadInput = Schema.Struct({
     agent: Schema.optionalKey(Agent.ID),
+    detached: Schema.optionalKey(Schema.Boolean),
+    model: Schema.optionalKey(ModelReference),
     prompt: Schema.String,
     title: Schema.optionalKey(Schema.String),
   });
@@ -74,6 +83,38 @@ export namespace SessionCommunication {
   const WaitForThreadsInput = Schema.Struct({
     threads: Schema.Array(SessionID),
   });
+
+  interface ModelCandidate {
+    readonly id: string;
+    readonly modelID: string;
+    readonly providerID: string;
+    readonly variants: readonly { readonly id: string }[];
+  }
+
+  interface RequestedModel {
+    readonly id: string;
+    readonly providerID: string;
+    readonly variant?: string | undefined;
+  }
+
+  const findModelMatch = (
+    models: readonly ModelCandidate[],
+    requested: RequestedModel
+  ) =>
+    models.find(
+      (info) =>
+        info.providerID === requested.providerID &&
+        (info.modelID === requested.id || info.id === requested.id)
+    );
+
+  const knownModelList = (models: readonly ModelCandidate[]) =>
+    models
+      .map((info) => `${info.providerID}/${info.modelID}`)
+      .slice(0, 50)
+      .join(", ");
+
+  const threadTitleFor = (input: typeof CreateThreadInput.Type) =>
+    input.title ?? `${input.agent ?? "session"}: ${input.prompt.slice(0, 72)}`;
 
   const renderMessage = (message: ContextMessage) => {
     if (
@@ -121,7 +162,13 @@ export namespace SessionCommunication {
       .map((record) => ({
         record,
         score: terms.filter((term) =>
-          [record.id, record.title, record.prompt, record.agent ?? ""]
+          [
+            record.id,
+            record.title,
+            record.prompt,
+            record.agent ?? "",
+            record.model ?? "",
+          ]
             .join("\n")
             .toLocaleLowerCase()
             .includes(term)
@@ -183,6 +230,54 @@ export namespace SessionCommunication {
         }
       );
 
+      const threadDepthFor = Effect.fn("SessionCommunication.threadDepthFor")(
+        function* threadDepthFor(sessionID: string, detached: boolean) {
+          if (detached) {
+            return 0;
+          }
+          const raw = yield* ctx.storage.get(`${storagePrefix}${sessionID}`);
+          if (raw === undefined) {
+            return 1;
+          }
+          return yield* Schema.decodeUnknownEffect(ThreadRecordSchema)(
+            raw
+          ).pipe(
+            Effect.map((record) => (record.depth ?? 1) + 1),
+            Effect.orElseSucceed(() => 1)
+          );
+        }
+      );
+
+      const resolveThreadModel = Effect.fn(
+        "SessionCommunication.resolveThreadModel"
+      )(function* resolveThreadModel(
+        reference: string | undefined,
+        fallback: Model.Ref | undefined
+      ) {
+        if (!reference) {
+          return { model: fallback, ok: true as const };
+        }
+        const requested = Model.Ref.parse(reference);
+        const available = yield* ctx.model.list();
+        const match = findModelMatch(available.data, requested);
+        if (!match) {
+          return {
+            message: `unknown model ${reference}. Available: ${knownModelList(available.data)}`,
+            ok: false as const,
+          };
+        }
+        if (
+          requested.variant !== undefined &&
+          !match.variants.some((item) => item.id === requested.variant)
+        ) {
+          return {
+            message: `unknown variant ${requested.variant} for model ${reference}`,
+            ok: false as const,
+          };
+        }
+        return { model: requested, ok: true as const };
+      });
+
       const summarySessionFor = Effect.fn(
         "SessionCommunication.summarySessionFor"
       )(function* summarySessionFor(reference: string, model: Model.Ref) {
@@ -224,41 +319,66 @@ export namespace SessionCommunication {
 
         editor.add({
           description:
-            "The primary Academy agent uses this when an independently specifiable task should run in another OpenCode session, especially when several tasks can proceed concurrently. Omit agent for a general coding session or select an Academy specialist. Creates the session, starts the prompt, records it for find_thread, and returns immediately without waiting. Do not use for work that should be completed inline in the current session.",
+            "The primary Academy agent uses this when an independently specifiable task should run in another OpenCode session, especially when several tasks can proceed concurrently. Omit agent for a general coding session or select an Academy specialist. Child threads can spawn their own sub-threads; pass detached true for a true independent session with no parent link. Pass model as provider/model[#variant] to override the inherited session model, otherwise the current session model is reused. Creates the session, starts the prompt, records it for find_thread, and returns immediately without waiting. Call multiple times in one turn for parallel work, then join with wait_for_threads or let threads reply back, never both. Do not use for work that should be completed inline in the current session.",
           execute: (input, context) =>
             safe(
               Effect.gen(function* createThread() {
-                if (input.prompt.length === 0 || input.title?.length === 0) {
-                  return failure("prompt and title must be non-empty");
+                if (
+                  input.prompt.length === 0 ||
+                  input.title?.length === 0 ||
+                  input.model?.length === 0
+                ) {
+                  return failure("prompt, title, and model must be non-empty");
                 }
 
                 const parent = yield* ctx.session.get({
                   sessionID: context.sessionID,
                 });
-                if (
-                  context.agent !== primaryAgent ||
-                  parent.metadata?.academyParentSessionID !== undefined
-                ) {
+                if (context.agent !== primaryAgent) {
                   return failure(
                     "only the primary Academy session can create threads"
                   );
                 }
 
-                const title =
-                  input.title ??
-                  `${input.agent ?? "session"}: ${input.prompt.slice(0, 72)}`;
+                const detached = input.detached ?? false;
+                const depth = yield* threadDepthFor(
+                  context.sessionID,
+                  detached
+                );
+                if (depth > maxThreadDepth) {
+                  return failure(
+                    `thread depth ${depth} exceeds limit ${maxThreadDepth}`
+                  );
+                }
+
+                const resolved = yield* resolveThreadModel(
+                  input.model,
+                  parent.model
+                );
+                if (!resolved.ok) {
+                  return failure(resolved.message);
+                }
+
+                const title = threadTitleFor(input);
                 const thread = yield* ctx.session.create({
                   agent: input.agent,
-                  metadata: { academyParentSessionID: context.sessionID },
-                  model: parent.model,
+                  ...(detached
+                    ? {}
+                    : {
+                        metadata: { academyParentSessionID: context.sessionID },
+                      }),
+                  ...(resolved.model ? { model: resolved.model } : {}),
                   title,
                 });
                 const created = yield* DateTime.now;
                 yield* ctx.storage.set(`${storagePrefix}${thread.id}`, {
                   ...(input.agent ? { agent: input.agent } : {}),
                   created: DateTime.toEpochMillis(created),
+                  depth,
+                  ...(detached ? { detached: true } : {}),
                   id: thread.id,
-                  parentID: context.sessionID,
+                  ...(input.model ? { model: input.model } : {}),
+                  ...(detached ? {} : { parentID: context.sessionID }),
                   prompt: input.prompt,
                   title,
                 });
@@ -272,7 +392,10 @@ export namespace SessionCommunication {
                 return {
                   content: JSON.stringify({
                     agent: input.agent,
+                    depth,
+                    ...(detached ? { detached: true } : {}),
                     id: thread.id,
+                    ...(input.model ? { model: input.model } : {}),
                     title,
                   }),
                 };

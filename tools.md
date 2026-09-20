@@ -10,7 +10,7 @@
 | `code_exec` | OpenCode Code Mode `execute` plus its `search` helper | Equivalent deferred-tool discovery and execution model. |
 | `content_search` | `grep` / installed FFF tools | Equivalent local content search; exact ranking and API differ. |
 | `create_file` | `write` | Equivalent filesystem write. |
-| `create_thread` | Academy `create_thread` | Same asynchronous intent, but creates a local OpenCode session rather than an Amp orb or runner. |
+| `create_thread` | Academy `create_thread` | Same asynchronous intent, but creates a local OpenCode session rather than an Amp orb or runner. Supports nested sub-threads, detached independent sessions, and per-thread model override. |
 | `edit_file` | `edit` | Equivalent targeted file edit. |
 | `file_search` | `glob` / installed FFF tools | Equivalent path discovery; exact ranking and API differ. |
 | `find_thread` | Academy `find_thread` | Searches only Academy-created sessions in Academy storage, not every OpenCode session. |
