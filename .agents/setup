@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+# Orb setup: pin the Bun toolchain, then install locked dependencies.
+set -euo pipefail
+
+start=$(date +%s)
+step() { printf '\n==> [%ss] %s\n' "$(( $(date +%s) - start ))" "$*"; }
+
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$repo_root"
+
+expected_bun="$(sed -n 's/.*"packageManager"[[:space:]]*:[[:space:]]*"bun@\([^"]*\)".*/\1/p' package.json)"
+step "bun: want ${expected_bun}, have $(bun --version 2>/dev/null || echo missing)"
+
+if ! command -v bun >/dev/null 2>&1 || [ "$(bun --version)" != "$expected_bun" ]; then
+  step "installing bun@${expected_bun}"
+  curl -fsSL https://bun.sh/install | bash -s -- "bun-v${expected_bun}"
+fi
+
+# A just-installed bun lands in ~/.bun/bin; persist it for login shells.
+# Idempotent: only append once, guarded by the BUN_INSTALL export marker.
+# (The bun installer may append an equivalent block itself; the guard covers both.)
+if [ -x "$HOME/.bun/bin/bun" ] && ! grep -Fq 'BUN_INSTALL' "$HOME/.bash_profile" 2>/dev/null; then
+  {
+    echo ''
+    echo '# bun (orb setup: pinned toolchain for this repo)'
+    echo 'export BUN_INSTALL="$HOME/.bun"'
+    echo 'export PATH="$BUN_INSTALL/bin:$PATH"'
+  } >> "$HOME/.bash_profile"
+fi
+export BUN_INSTALL="$HOME/.bun"
+if [ -x "$HOME/.bun/bin/bun" ]; then
+  export PATH="$HOME/.bun/bin:$PATH"
+fi
+
+step "bun $(bun --version)"
+step "bun install --frozen-lockfile"
+bun install --frozen-lockfile
+
+step "verify (lint, typecheck)"
+bun run lint
+bun run typecheck
+
+step "done in $(( $(date +%s) - start ))s"
