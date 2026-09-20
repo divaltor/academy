@@ -1,5 +1,6 @@
 import agnesSystem from "./agents/agnes.txt" with { type: "text" };
 import bellnoSystem from "./agents/bellno.txt" with { type: "text" };
+import bourbonSystem from "./agents/bourbon.txt" with { type: "text" };
 import cafeSystem from "./agents/cafe.txt" with { type: "text" };
 import dantsuSystem from "./agents/dantsu.txt" with { type: "text" };
 import dianaSystem from "./agents/diana.txt" with { type: "text" };
@@ -46,8 +47,27 @@ export const agents: readonly AcademyAgent[] = [
       { action: "subagent", effect: "allow", resource: "cafe" },
       { action: "subagent", effect: "allow", resource: "dantsu" },
       { action: "subagent", effect: "allow", resource: "bellno" },
+      { action: "subagent", effect: "allow", resource: "bourbon" },
     ],
     system: dianaSystem,
+  },
+  {
+    color: "#f6c177",
+    description:
+      "General-purpose agent for researching complex questions and executing multi-step tasks directly with scoped validation. Use this agent to implement, fix, build, test, or run multiple units of work in parallel.",
+    id: "bourbon",
+    mode: "subagent",
+    name: "Bourbon",
+    permissions: [
+      { action: "subagent", effect: "deny", resource: "*" },
+      { action: "todowrite", effect: "deny", resource: "*" },
+      { action: "question", effect: "deny", resource: "*" },
+      { action: "websearch", effect: "allow", resource: "*" },
+      { action: "webfetch", effect: "allow", resource: "*" },
+      { action: "grep", effect: "allow", resource: "*" },
+      { action: "glob", effect: "allow", resource: "*" },
+    ],
+    system: bourbonSystem,
   },
   {
     color: "#db696b",

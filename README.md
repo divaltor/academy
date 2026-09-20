@@ -9,6 +9,7 @@ Inspired by _Umamusume: Pretty Derby_, Academy gives OpenCode a focused team of 
 Academy registers a focused roster of Umamusume agents:
 
 - **Diana** — default primary coding agent, replacing OpenCode's Build agent
+- **Bourbon** — general-purpose implementation and validation subagent
 - **Agnes** — Oracle-style technical advisor
 - **Cafe** — Librarian-style external researcher
 - **Dantsu** — Finder-style codebase search specialist
@@ -27,6 +28,7 @@ Add Academy to `opencode.jsonc`. Agent names are optional; omit `agentNames` or 
       "options": {
         "agentNames": {
           "diana": "Diana",
+          "bourbon": "Bourbon",
           "agnes": "Agnes",
           "cafe": "Cafe",
           "dantsu": "Dantsu",
@@ -38,7 +40,7 @@ Add Academy to `opencode.jsonc`. Agent names are optional; omit `agentNames` or 
 }
 ```
 
-Custom names change the agents' displayed names and persona references. Their stable IDs (`diana`, `agnes`, `cafe`, `dantsu`, and `bellno`) remain unchanged for permissions and invocation. Local paths resolve relative to the config file. See the [plugin docs](https://opencode.ai/v2/docs/build/plugins) to learn more.
+Custom names change the agents' displayed names and persona references. Their stable IDs (`diana`, `bourbon`, `agnes`, `cafe`, `dantsu`, and `bellno`) remain unchanged for permissions and invocation. Local paths resolve relative to the config file. See the [plugin docs](https://opencode.ai/v2/docs/build/plugins) to learn more.
 
 ### Private GitHub repositories
 

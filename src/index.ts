@@ -8,6 +8,7 @@ const AcademyOptions = Schema.Struct({
     Schema.Struct({
       agnes: Schema.optionalKey(Schema.NonEmptyString),
       bellno: Schema.optionalKey(Schema.NonEmptyString),
+      bourbon: Schema.optionalKey(Schema.NonEmptyString),
       cafe: Schema.optionalKey(Schema.NonEmptyString),
       dantsu: Schema.optionalKey(Schema.NonEmptyString),
       diana: Schema.optionalKey(Schema.NonEmptyString),
@@ -58,7 +59,7 @@ const setup = Effect.fn("Academy.setup")(function* setup(ctx: Plugin.Context) {
         agent.mode = definition.mode;
         agent.color = definition.color;
         agent.system = definition.system.replaceAll(
-          /\b(?:Diana|Agnes|Cafe|Dantsu|Bellno)\b/gu,
+          /\b(?:Diana|Agnes|Bourbon|Cafe|Dantsu|Bellno)\b/gu,
           (name) => agentNames.get(name) ?? name
         );
         agent.permissions = definition.permissions.map((permission) => ({
