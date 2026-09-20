@@ -1,9 +1,29 @@
 import { Agent, Model, Plugin, Provider } from "@opencode/plugin/effect";
-import { Effect } from "effect";
+import { Config, Effect, Option, Redacted } from "effect";
 
 import { agents } from "./agents";
 
 const setup = Effect.fn("Academy.setup")(function* setup(ctx: Plugin.Context) {
+  const githubToken = yield* Config.option(
+    Config.redacted("GITHUB_TOKEN")
+  ).pipe(Effect.orDie);
+
+  yield* ctx.mcp.transform((editor) => {
+    if (Option.isNone(githubToken)) {
+      return;
+    }
+
+    editor.set("academy_github", {
+      headers: {
+        Authorization: `Bearer ${Redacted.value(githubToken.value)}`,
+        "X-MCP-Toolsets": "repos,issues,pull_requests",
+      },
+      oauth: false,
+      type: "remote",
+      url: "https://api.githubcopilot.com/mcp/readonly",
+    });
+  });
+
   yield* ctx.agent.transform((editor) => {
     for (const id of ["build", "plan", "explore", "general"]) {
       editor.remove(id);

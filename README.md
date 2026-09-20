@@ -34,6 +34,17 @@ Add the plugin to `opencode.jsonc`:
 
 Local paths resolve relative to the config file. See the [plugin docs](https://opencode.ai/v2/docs/build/plugins) to learn more.
 
+### Private GitHub repositories
+
+Academy connects Cafe, Diana, and Bellno to GitHub's official MCP server in read-only mode when `GITHUB_TOKEN` is set. Use a dedicated fine-grained personal access token limited to the required repositories, with read-only Contents, Issues, and Pull requests permissions:
+
+```bash
+export GITHUB_TOKEN="github_pat_..."
+opencode
+```
+
+Keep the token out of `opencode.jsonc` and repository files. Agnes and Dantsu cannot access the GitHub MCP tools; Cafe also has no shell access.
+
 ## Develop
 
 ```bash
