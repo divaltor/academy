@@ -214,7 +214,6 @@ export namespace SessionCommunication {
                   `${input.agent ?? "session"}: ${input.prompt.slice(0, 72)}`;
                 const thread = yield* ctx.session.create({
                   agent: input.agent,
-                  location: ctx.location,
                   metadata: { academyParentSessionID: context.sessionID },
                   model: parent.model,
                   title,
