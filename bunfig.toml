@@ -1,0 +1,4 @@
+[install]
+linker = "isolated"
+# Pin newly added dependencies instead of caret ranges.
+exact = true
