@@ -43,4 +43,4 @@ bun pm version major # breaking change
 git push origin main --follow-tags
 ```
 
-The `publish.yml` workflow checks that the tag matches `package.json`, reruns lint and type checking, then publishes `@divaltor/academy` to npm. Do not publish a normal release manually or reuse an existing version.
+The `publish.yml` workflow checks that the tag matches `package.json`, reruns lint and type checking, then publishes `@divaltor/academy` to npm with provenance. Do not publish a normal release manually or reuse an existing version.
