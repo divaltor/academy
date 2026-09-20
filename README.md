@@ -27,7 +27,7 @@ Add Academy to `opencode.jsonc`. All options are optional:
           "rudolf": {
             "name": "Emperor",
             "color": "#8994B8",
-            "model": "anthropic/claude-opus-4-1#max",
+            "model": "opencode/claude-opus-5#max",
           },
         },
         "experimental": {
