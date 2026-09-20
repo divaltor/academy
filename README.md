@@ -1,10 +1,22 @@
 # Academy
 
-OpenCode V2 plugin (Bun + TypeScript).
+An OpenCode plugin inspired by Tracen Academy from _Umamusume: Pretty Derby_.
 
-## Use it
+> "Eclipse first, the rest nowhere."
 
-Add the published package or a local path to `opencode.jsonc`:
+Tracen Academy is a boarding school that trains horse girls to debut in the Twinkle Series. Academy does the same for your agents — small, disciplined tools, commands, and hooks that train OpenCode to win by a nose.
+
+Academy is currently in early training.
+
+## Highlights
+
+- One entry point: `src/index.ts` exporting `Plugin.define({ id: "academy", setup })`
+- Synchronous transforms: load data before registering, `reload()` when inputs change
+- Bun + TypeScript, with `lint` and `typecheck` gates
+
+## Getting started
+
+Add the plugin to `opencode.jsonc`:
 
 ```jsonc
 {
@@ -13,7 +25,7 @@ Add the published package or a local path to `opencode.jsonc`:
 }
 ```
 
-Local paths resolve relative to the config file. A `plugins/` directory beside a project-root `opencode.jsonc` is not auto-discovered — put it under `.opencode/` or reference it explicitly.
+Local paths resolve relative to the config file. See the [plugin docs](https://opencode.ai/v2/docs/build/plugins) to learn more.
 
 ## Develop
 
@@ -21,23 +33,9 @@ Local paths resolve relative to the config file. A `plugins/` directory beside a
 bun install
 bun run lint       # oxlint via Ultracite
 bun run typecheck  # tsc --noEmit
-bun run check      # ultracite check (lint, no fixes)
-bun run fix        # ultracite fix (lint + format)
 ```
 
 Install git hooks once with `bunx lefthook install`.
-
-## Structure
-
-```text
-src/index.ts      # plugin entry: default-exported Plugin.define({ id: "academy", setup })
-oxlint.config.ts  # Ultracite core rules
-oxfmt.config.ts   # Ultracite formatting
-lefthook.yml      # pre-commit: oxlint --fix + oxfmt
-AGENTS.md         # repo rules for agents
-```
-
-`setup` registers tools, commands, and hooks through the plugin context (`ctx.tool`, `ctx.command`, `ctx.session`, `ctx.storage`). Transforms are synchronous; load external data before registering and call `reload()` when captured inputs change. See the [OpenCode plugin docs](https://opencode.ai/v2/docs/build/plugins) for the full API.
 
 ## License
 
