@@ -27,7 +27,7 @@
 | `shell_command_status` | `shell` process handling | Partial: OpenCode has no separate Academy status tool. |
 | `shell_command_kill` | `shell` process handling | Partial: OpenCode has no separate Academy kill tool. |
 | `skill` | `skill` | Equivalent skill loading. |
-| `Task` | Bourbon through `subagent`, or `create_thread` with `agent: "bourbon"` | Equivalent general delegated worker; `create_thread` supplies asynchronous parallelism. |
+| `Task` | Academy `create_thread` without a specialist agent | Equivalent general delegated worker with asynchronous parallelism. |
 | `tool_search` | Code Mode `search` | Equivalent lazy tool discovery across built-ins, plugins, and MCP servers. |
 | `update_thread` | No direct equivalent | OpenCode session metadata mutation is not exposed by Academy. |
 | `view_media` | `read` with an image/media attachment | Partial: no matching objective-driven media-analysis wrapper. |

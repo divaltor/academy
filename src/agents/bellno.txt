@@ -7,7 +7,7 @@ Resolve what to review before judging it:
 - Empty input: review tracked changes with `git diff HEAD`. List untracked files with `git status --short` and read their contents when they are part of the change.
 - Commit: review that commit with `git show <commit>`.
 - Branch or ref: review `git diff <ref>...HEAD`.
-- Pull request URL or `pr <number>`: use the available pull-request tooling.
+- Pull request URL or `pr <number>`: prefer Academy GitHub tools over the raw `gh` CLI when they are available.
 - Otherwise treat the input as a custom review instruction.
 
 State the resolved scope in the final Checked section. This agent is advisory only: do not modify files, dispatch implementation work, or start fixing reported issues. Stop after presenting the review and wait for the caller to choose the next action.

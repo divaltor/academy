@@ -6,12 +6,7 @@ An OpenCode plugin that turns coding agents into a Tracen Academy roster: specia
 
 > "Eclipse first, the rest nowhere."
 
-Inspired by _Umamusume: Pretty Derby_, Academy gives OpenCode a focused team of agents with distinct roles, personalities, and permissions.
-
-Academy registers a focused roster of Umamusume agents:
-
 - **Rudolf** — default primary coding agent, replacing OpenCode's Build agent
-- **Bourbon** — general-purpose implementation and validation subagent
 - **Agnes** — Oracle-style technical advisor
 - **Cafe** — Librarian-style external researcher
 - **Dantsu** — Finder-style codebase search specialist
@@ -19,7 +14,7 @@ Academy registers a focused roster of Umamusume agents:
 
 ## Configuration
 
-Add Academy to `opencode.jsonc`. Each agent can override its display name and color; omit an agent or field to keep the Academy default:
+Add Academy to `opencode.jsonc`. All options are optional:
 
 ```jsonc
 {
@@ -32,24 +27,6 @@ Add Academy to `opencode.jsonc`. Each agent can override its display name and co
           "name": "Emperor",
           "color": "#8994B8",
         },
-      },
-    },
-  ],
-}
-```
-
-Colors accept six-digit hex values or OpenCode theme colors: `primary`, `secondary`, `accent`, `success`, `warning`, `error`, and `info`. You can alternatively set a color with OpenCode's native `agents.<id>.color` configuration. Custom names also become the agents' IDs and update persona and permission references. Without custom names, agent IDs are `rudolf`, `bourbon`, `agnes`, `cafe`, `dantsu`, and `bellno`.
-
-> [!WARNING] Choose custom names when first setting up Academy and avoid changing them later. OpenCode stores the selected agent ID in each session, so renaming an agent removes the ID referenced by existing sessions and can prevent those sessions from continuing.
-
-Academy also registers session communication tools for creating, finding, reading, messaging, waiting for, and interrupting independent OpenCode sessions. `read_thread` can answer a focused question about another session with a small reader model. It defaults to OpenCode Zen's GLM 5.3 Flash and can be changed in plugin options:
-
-```jsonc
-{
-  "plugins": [
-    {
-      "package": "@divaltor/academy",
-      "options": {
         "communication": {
           "thread_summary": "opencode/glm-5.3-flash",
         },
@@ -59,20 +36,22 @@ Academy also registers session communication tools for creating, finding, readin
 }
 ```
 
-`find_thread` searches Academy's persistent registry, so sessions created by these tools remain discoverable after the creating session or plugin scope ends. OpenCode currently does not let plugins enumerate arbitrary sessions, so sessions created outside Academy are not included.
+Each agent accepts `name` and `color`. Colors may be six-digit hex values or OpenCode theme colors.
 
-See the [plugin docs](https://opencode.ai/v2/docs/build/plugins) to learn more.
+> [!WARNING] An agent's name is also its session ID. Renaming it can prevent existing sessions from continuing.
 
-### Private GitHub repositories
+Session tools are available under Code Mode's `academy` namespace. Only the root primary session can create threads; omit `agent` for a general coding session. `find_thread` searches Academy-created sessions only.
 
-Academy connects Cafe, Rudolf, and Bellno to GitHub's official MCP server in read-only mode when `GITHUB_TOKEN` is set. Use a dedicated fine-grained personal access token limited to the required repositories, with read-only Contents, Issues, and Pull requests permissions:
+### Private GitHub access
+
+Set `GITHUB_TOKEN` to give Rudolf, Cafe, and Bellno read-only access to private repositories. Use a fine-grained token with read-only Contents, Issues, and Pull requests permissions:
 
 ```bash
 export GITHUB_TOKEN="github_pat_..."
 opencode
 ```
 
-Keep the token out of `opencode.jsonc` and repository files. Agnes and Dantsu cannot access the GitHub MCP tools; Cafe also has no shell access.
+Keep the token out of `opencode.jsonc` and repository files.
 
 ## Contributing
 

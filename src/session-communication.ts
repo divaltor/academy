@@ -62,7 +62,9 @@ export namespace SessionCommunication {
   });
 
   const FindThreadInput = Schema.Struct({
-    limit: Schema.optionalKey(Schema.Number),
+    limit: Schema.optionalKey(
+      Schema.Int.check(Schema.isBetween({ maximum: 20, minimum: 1 }))
+    ),
     query: Schema.optionalKey(Schema.String),
   });
 
@@ -150,7 +152,11 @@ export namespace SessionCommunication {
     effect.pipe(Effect.catchCause(recoverFailure));
 
   export const register = Effect.fn("SessionCommunication.register")(
-    function* register(ctx: Plugin.Context, options: Options) {
+    function* register(
+      ctx: Plugin.Context,
+      options: Options,
+      primaryAgent: Agent.ID
+    ) {
       const scanRecords = Effect.fn("SessionCommunication.scanThreadRecords")(
         function* scanThreadRecords(
           after?: string
@@ -183,7 +189,7 @@ export namespace SessionCommunication {
 
         editor.add({
           description:
-            "Use when an independently specifiable task should run in another OpenCode session, especially when several tasks can proceed concurrently. Creates the session, starts the prompt, records it for find_thread, and returns immediately without waiting. Do not use for work that should be completed inline in the current session.",
+            "The primary Academy agent uses this when an independently specifiable task should run in another OpenCode session, especially when several tasks can proceed concurrently. Omit agent for a general coding session or select an Academy specialist. Creates the session, starts the prompt, records it for find_thread, and returns immediately without waiting. Do not use for work that should be completed inline in the current session.",
           execute: (input, context) =>
             safe(
               Effect.gen(function* createThread() {
@@ -194,6 +200,15 @@ export namespace SessionCommunication {
                 const parent = yield* ctx.session.get({
                   sessionID: context.sessionID,
                 });
+                if (
+                  context.agent !== primaryAgent ||
+                  parent.metadata?.academyParentSessionID !== undefined
+                ) {
+                  return failure(
+                    "only the primary Academy session can create threads"
+                  );
+                }
+
                 const title =
                   input.title ??
                   `${input.agent ?? "session"}: ${input.prompt.slice(0, 72)}`;
@@ -231,6 +246,11 @@ export namespace SessionCommunication {
             ),
           input: CreateThreadInput,
           name: "create_thread",
+          options: {
+            namespace: "academy",
+            permission: "academy_session_create",
+            pinned: true,
+          },
         });
 
         editor.add({
@@ -239,15 +259,6 @@ export namespace SessionCommunication {
           execute: (input) =>
             safe(
               Effect.gen(function* findThread() {
-                if (
-                  input.limit !== undefined &&
-                  (!Number.isInteger(input.limit) ||
-                    input.limit < 1 ||
-                    input.limit > 20)
-                ) {
-                  return failure("limit must be an integer between 1 and 20");
-                }
-
                 return {
                   content: JSON.stringify(
                     findThreadRecords(
@@ -261,6 +272,7 @@ export namespace SessionCommunication {
             ),
           input: FindThreadInput,
           name: "find_thread",
+          options: { namespace: "academy" },
         });
 
         editor.add({
@@ -285,6 +297,7 @@ export namespace SessionCommunication {
             ),
           input: ThreadInput,
           name: "get_thread_status",
+          options: { namespace: "academy" },
         });
 
         editor.add({
@@ -325,6 +338,7 @@ export namespace SessionCommunication {
             ),
           input: ReadThreadInput,
           name: "read_thread",
+          options: { namespace: "academy" },
         });
 
         editor.add({
@@ -355,6 +369,10 @@ export namespace SessionCommunication {
             ),
           input: SendThreadMessageInput,
           name: "send_thread_message",
+          options: {
+            namespace: "academy",
+            permission: "academy_session_control",
+          },
         });
 
         editor.add({
@@ -393,6 +411,10 @@ export namespace SessionCommunication {
             ),
           input: WaitForThreadsInput,
           name: "wait_for_threads",
+          options: {
+            namespace: "academy",
+            permission: "academy_session_control",
+          },
         });
 
         editor.add({
@@ -408,6 +430,10 @@ export namespace SessionCommunication {
             ),
           input: ThreadInput,
           name: "interrupt_thread",
+          options: {
+            namespace: "academy",
+            permission: "academy_session_control",
+          },
         });
       });
     }
