@@ -1,6 +1,5 @@
 import agnesSystem from "./agents/agnes.txt" with { type: "text" };
 import bellnoSystem from "./agents/bellno.txt" with { type: "text" };
-import bourbonSystem from "./agents/bourbon.txt" with { type: "text" };
 import cafeSystem from "./agents/cafe.txt" with { type: "text" };
 import dantsuSystem from "./agents/dantsu.txt" with { type: "text" };
 import rudolfSystem from "./agents/rudolf.txt" with { type: "text" };
@@ -11,14 +10,7 @@ interface Permission {
   readonly effect: "allow" | "ask" | "deny";
 }
 
-const agentIds = [
-  "agnes",
-  "bellno",
-  "bourbon",
-  "cafe",
-  "dantsu",
-  "rudolf",
-] as const;
+const agentIds = ["agnes", "bellno", "cafe", "dantsu", "rudolf"] as const;
 
 interface AcademyAgent {
   readonly id: (typeof agentIds)[number];
@@ -37,6 +29,11 @@ interface AcademyAgent {
 
 const defaultPermissions: readonly Permission[] = [
   { action: "*", effect: "allow", resource: "*" },
+];
+
+const specialistSessionPermissions: readonly Permission[] = [
+  { action: "academy_session_create", effect: "deny", resource: "*" },
+  { action: "academy_session_control", effect: "deny", resource: "*" },
 ];
 
 export const agents: readonly AcademyAgent[] = [
@@ -61,28 +58,8 @@ export const agents: readonly AcademyAgent[] = [
       { action: "subagent", effect: "allow", resource: "cafe" },
       { action: "subagent", effect: "allow", resource: "dantsu" },
       { action: "subagent", effect: "allow", resource: "bellno" },
-      { action: "subagent", effect: "allow", resource: "bourbon" },
     ],
     system: rudolfSystem,
-  },
-  {
-    color: "#f6c177",
-    description:
-      "General-purpose agent for researching complex questions and executing multi-step tasks directly with scoped validation. Use this agent to implement, fix, build, test, or run multiple units of work in parallel.",
-    id: "bourbon",
-    mode: "subagent",
-    name: "Bourbon",
-    permissions: [
-      ...defaultPermissions,
-      { action: "subagent", effect: "deny", resource: "*" },
-      { action: "todowrite", effect: "deny", resource: "*" },
-      { action: "question", effect: "deny", resource: "*" },
-      { action: "websearch", effect: "allow", resource: "*" },
-      { action: "webfetch", effect: "allow", resource: "*" },
-      { action: "grep", effect: "allow", resource: "*" },
-      { action: "glob", effect: "allow", resource: "*" },
-    ],
-    system: bourbonSystem,
   },
   {
     color: "#db696b",
@@ -94,6 +71,7 @@ export const agents: readonly AcademyAgent[] = [
     name: "Agnes",
     permissions: [
       ...defaultPermissions,
+      ...specialistSessionPermissions,
       { action: "edit", effect: "deny", resource: "*" },
       { action: "shell", effect: "deny", resource: "*" },
       { action: "subagent", effect: "deny", resource: "*" },
@@ -118,6 +96,7 @@ export const agents: readonly AcademyAgent[] = [
     name: "Cafe",
     permissions: [
       ...defaultPermissions,
+      ...specialistSessionPermissions,
       { action: "edit", effect: "deny", resource: "*" },
       { action: "shell", effect: "deny", resource: "*" },
       { action: "subagent", effect: "deny", resource: "*" },
@@ -140,6 +119,7 @@ export const agents: readonly AcademyAgent[] = [
     name: "Dantsu",
     permissions: [
       ...defaultPermissions,
+      ...specialistSessionPermissions,
       { action: "edit", effect: "deny", resource: "*" },
       { action: "subagent", effect: "deny", resource: "*" },
       { action: "todowrite", effect: "deny", resource: "*" },
@@ -161,6 +141,7 @@ export const agents: readonly AcademyAgent[] = [
     name: "Bellno",
     permissions: [
       ...defaultPermissions,
+      ...specialistSessionPermissions,
       { action: "edit", effect: "deny", resource: "*" },
       { action: "subagent", effect: "deny", resource: "*" },
       { action: "todowrite", effect: "deny", resource: "*" },

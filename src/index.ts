@@ -12,7 +12,6 @@ const AgentOptions = Schema.Struct({
 const AcademyOptions = Schema.Struct({
   agnes: Schema.optionalKey(AgentOptions),
   bellno: Schema.optionalKey(AgentOptions),
-  bourbon: Schema.optionalKey(AgentOptions),
   cafe: Schema.optionalKey(AgentOptions),
   communication: Schema.optionalKey(SessionCommunication.Options),
   dantsu: Schema.optionalKey(AgentOptions),
@@ -76,7 +75,7 @@ const setup = Effect.fn("Academy.setup")(function* setup(ctx: Plugin.Context) {
         agent.color =
           options[definition.id]?.color ?? agent.color ?? definition.color;
         agent.system = definition.system.replaceAll(
-          /\b(?:Rudolf|Agnes|Bourbon|Cafe|Dantsu|Bellno)\b/gu,
+          /\b(?:Rudolf|Agnes|Cafe|Dantsu|Bellno)\b/gu,
           (name) => agentNames.get(name) ?? name
         );
         agent.permissions = definition.permissions.map((permission) => {
@@ -104,7 +103,11 @@ const setup = Effect.fn("Academy.setup")(function* setup(ctx: Plugin.Context) {
     editor.default(agentID("rudolf"));
   });
 
-  yield* SessionCommunication.register(ctx, options.communication ?? {});
+  yield* SessionCommunication.register(
+    ctx,
+    options.communication ?? {},
+    agentID("rudolf")
+  );
 });
 
 export default Plugin.define({
