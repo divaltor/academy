@@ -6,13 +6,20 @@ An OpenCode plugin inspired by Tracen Academy from _Umamusume: Pretty Derby_.
 
 Tracen Academy is a boarding school that trains horse girls to debut in the Twinkle Series. Academy does the same for your agents — small, disciplined tools, commands, and hooks that train OpenCode to win by a nose.
 
-Academy is currently in early training.
+Academy registers a focused roster of Umamusume agents:
+
+- **Diana** — default primary coding agent, replacing OpenCode's Build agent
+- **Agnes** — Oracle-style technical advisor
+- **Cafe** — Librarian-style external researcher
+- **Dantsu** — Finder-style codebase search specialist
+- **Bellno** — general code reviewer
 
 ## Highlights
 
-- One entry point: `src/index.ts` exporting `Plugin.define({ id: "academy", setup })`
+- One Effect-native entry point: `src/index.ts` exporting `Plugin.define({ id: "academy", effect })`
+- Agent registration through `ctx.agent.transform`, with Diana selected by default
 - Synchronous transforms: load data before registering, `reload()` when inputs change
-- Bun + TypeScript, with `lint` and `typecheck` gates
+- Bun + Effect + TypeScript, with `lint` and `typecheck` gates
 
 ## Getting started
 

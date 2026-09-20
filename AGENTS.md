@@ -2,10 +2,11 @@
 
 1. MUST use `bun` for package management and running scripts.
 2. Run `bun run lint` for lint errors, then `bun run typecheck` for type errors. Don't run `format` — formatting is applied via `bun run fix` and the pre-commit hook.
-3. Plugin entry is `src/index.ts`: default-export `Plugin.define({ id: "academy", setup })` from `@opencode/plugin` (Promise API). `setup` may return a cleanup function that runs on unload.
+3. Plugin entry is `src/index.ts`: default-export `Plugin.define({ id: "academy", effect })` from `@opencode/plugin/effect`. The effect runs in a managed scope; scoped registrations are disposed when the plugin unloads.
 4. Transforms are synchronous edits of domain state: load external data before registering, then call `reload()` when captured inputs change. Later transforms see earlier ones; a read value is never mutated by later rebuilds.
-5. Don't use `git stash` mid-session; other agents or the user can edit files at the same time.
-6. Follow conventional commits: `type(scope): summary` with types `feat`, `fix`, `docs`, `chore`, `refactor`, `test`.
+5. Academy owns the Umamusume agent roster: Diana is the default primary agent; Agnes, Cafe, Dantsu, and Bellno are specialist subagents. Register them through `ctx.agent.transform`, not project or user configuration.
+6. Don't use `git stash` mid-session; other agents or the user can edit files at the same time.
+7. Follow conventional commits: `type(scope): summary` with types `feat`, `fix`, `docs`, `chore`, `refactor`, `test`.
 
 ## Communication
 
@@ -16,7 +17,7 @@
 
 Optimize the design for the normal flow. If the happy path is 95% of behavior, it should be ~95% of what a reader sees.
 
-- Make top-level code read like a use case: `setup` registers well-named tools, commands, and hooks; push protocol details and state surgery into the lowest module that owns them.
+- Make top-level code read like a use case: the plugin effect registers well-named agents, tools, commands, and hooks; push protocol details and state surgery into the lowest module that owns them.
 - Patterns, layers, interfaces, and files are costs. Add one only when it owns a real invariant, hides real complexity, has multiple real implementations, removes stable duplication, or creates a proven boundary.
 - Prefer deletion and the smallest correct diff. Do not add a dependency, abstraction, configuration, or flexibility without a proven present need.
 - Never reduce validation at trust boundaries or explicitly requested behavior to make a change smaller.
@@ -39,6 +40,17 @@ Optimize the design for the normal flow. If the happy path is 95% of behavior, i
 - Name recurring or spec-defined values as consts or enums; inline self-explanatory one-off literals.
 - Prefer options objects or enums over positional boolean parameters.
 - Enforcement: `bun run lint`.
+
+## Effect TS
+
+- Use the Effect-native OpenCode API from `@opencode/plugin/effect`; do not bridge Promise plugin methods with `Effect.promise`.
+- Name workflows with `Effect.fn("Module.method")`.
+- Yield scoped registrations directly so OpenCode disposes them with the plugin scope.
+- Put expected failures in the error channel. Do not use `try`/`catch` around Effect workflows or turn failures into defects.
+- Keep pure parsing, validation, and definition building synchronous; do not return `Effect` from helpers that perform no effectful work.
+- Decode untrusted data with `Schema` at the boundary rather than asserting types or wrapping `JSON.parse` in `Effect.try`.
+- Bind services before calling their methods. Do not nest calls on a yielded service.
+- Use one `ManagedRuntime` per process only when code must cross from Promise callbacks into Effect. Plugin entrypoints do not need one.
 
 ## Maintenance & Tasks
 
