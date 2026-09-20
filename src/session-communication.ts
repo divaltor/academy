@@ -35,15 +35,15 @@ export namespace SessionCommunication {
   );
 
   export const Options = Schema.Struct({
-    readerModel: Schema.optionalKey(ModelReference),
+    thread_summary: Schema.optionalKey(ModelReference),
   });
 
   export type Options = typeof Options.Type;
 
   const CreateThreadInput = Schema.Struct({
     agent: Schema.optionalKey(Agent.ID),
-    prompt: Schema.NonEmptyString,
-    title: Schema.optionalKey(Schema.NonEmptyString),
+    prompt: Schema.String,
+    title: Schema.optionalKey(Schema.String),
   });
 
   const ThreadInput = Schema.Struct({
@@ -52,24 +52,22 @@ export namespace SessionCommunication {
 
   const SendThreadMessageInput = Schema.Struct({
     delivery: Schema.optionalKey(Schema.Literals(["steer", "queue"])),
-    message: Schema.NonEmptyString,
+    message: Schema.String,
     thread: SessionID,
   });
 
   const ReadThreadInput = Schema.Struct({
-    question: Schema.optionalKey(Schema.NonEmptyString),
+    question: Schema.optionalKey(Schema.String),
     thread: SessionID,
   });
 
   const FindThreadInput = Schema.Struct({
-    limit: Schema.optionalKey(
-      Schema.Int.check(Schema.isBetween({ maximum: 20, minimum: 1 }))
-    ),
+    limit: Schema.optionalKey(Schema.Number),
     query: Schema.optionalKey(Schema.String),
   });
 
   const WaitForThreadsInput = Schema.Struct({
-    threads: Schema.NonEmptyArray(SessionID),
+    threads: Schema.Array(SessionID),
   });
 
   const renderMessage = (message: ContextMessage) => {
@@ -189,6 +187,13 @@ export namespace SessionCommunication {
           execute: (input, context) =>
             safe(
               Effect.gen(function* createThread() {
+                if (input.prompt.length === 0 || input.title?.length === 0) {
+                  return failure("prompt and title must be non-empty");
+                }
+
+                const parent = yield* ctx.session.get({
+                  sessionID: context.sessionID,
+                });
                 const title =
                   input.title ??
                   `${input.agent ?? "session"}: ${input.prompt.slice(0, 72)}`;
@@ -196,6 +201,7 @@ export namespace SessionCommunication {
                   agent: input.agent,
                   location: ctx.location,
                   metadata: { academyParentSessionID: context.sessionID },
+                  model: parent.model,
                   title,
                 });
                 const created = yield* DateTime.now;
@@ -232,17 +238,26 @@ export namespace SessionCommunication {
             "Use when the target session ID is unknown or when recovering earlier delegated work after its creating session ended. Searches persisted Academy-created session history by ID, title, agent, or original prompt; omit query to list the most recent sessions. It cannot discover sessions created outside Academy.",
           execute: (input) =>
             safe(
-              scanRecords().pipe(
-                Effect.map((records) => ({
+              Effect.gen(function* findThread() {
+                if (
+                  input.limit !== undefined &&
+                  (!Number.isInteger(input.limit) ||
+                    input.limit < 1 ||
+                    input.limit > 20)
+                ) {
+                  return failure("limit must be an integer between 1 and 20");
+                }
+
+                return {
                   content: JSON.stringify(
                     findThreadRecords(
-                      records,
+                      yield* scanRecords(),
                       input.query ?? "",
                       input.limit ?? 10
                     )
                   ),
-                }))
-              )
+                };
+              })
             ),
           input: FindThreadInput,
           name: "find_thread",
@@ -283,13 +298,17 @@ export namespace SessionCommunication {
                 });
                 const transcript = renderContext(messages);
 
+                if (input.question?.length === 0) {
+                  return failure("question must be non-empty");
+                }
+
                 if (!input.question) {
                   return { content: transcript };
                 }
 
                 const result = yield* ctx.generate.text({
                   model: Model.Ref.parse(
-                    options.readerModel ?? defaultReaderModel
+                    options.thread_summary ?? defaultReaderModel
                   ),
                   prompt: [
                     "Answer the question using only the supplied OpenCode session transcript.",
@@ -313,22 +332,26 @@ export namespace SessionCommunication {
             "Use to give a known existing session a follow-up instruction, correction, or additional context. The message is admitted and the tool returns immediately; queue is the safe default, while steer targets the currently active turn. Use create_thread instead when no target session exists.",
           execute: (input) =>
             safe(
-              ctx.session
-                .prompt({
+              Effect.gen(function* sendThreadMessage() {
+                if (input.message.length === 0) {
+                  return failure("message must be non-empty");
+                }
+
+                const message = yield* ctx.session.prompt({
                   delivery: input.delivery ?? "queue",
                   resume: true,
                   sessionID: input.thread,
                   text: input.message,
-                })
-                .pipe(
-                  Effect.map((message) => ({
-                    content: JSON.stringify({
-                      delivery: message.delivery,
-                      id: message.id,
-                      sessionID: message.sessionID,
-                    }),
-                  }))
-                )
+                });
+
+                return {
+                  content: JSON.stringify({
+                    delivery: message.delivery,
+                    id: message.id,
+                    sessionID: message.sessionID,
+                  }),
+                };
+              })
             ),
           input: SendThreadMessageInput,
           name: "send_thread_message",
@@ -339,26 +362,34 @@ export namespace SessionCommunication {
             "Use only when the current task cannot continue until one or more delegated sessions finish. Waits for all supplied sessions concurrently, then returns each terminal outcome and latest assistant response. Do not wait immediately after creation when useful work can continue in parallel.",
           execute: (input) =>
             safe(
-              Effect.all(
-                input.threads.map((thread) =>
-                  Effect.gen(function* waitForThread() {
-                    yield* ctx.session.wait({ sessionID: thread });
-                    const info = yield* ctx.session.get({ sessionID: thread });
-                    const messages = yield* ctx.session.context({
-                      sessionID: thread,
-                    });
+              Effect.gen(function* waitForThreads() {
+                if (input.threads.length === 0) {
+                  return failure("threads must be non-empty");
+                }
 
-                    return {
-                      id: thread,
-                      outcome: info.outcome,
-                      response: lastAssistantText(messages),
-                    };
-                  })
-                ),
-                { concurrency: "unbounded" }
-              ).pipe(
-                Effect.map((results) => ({ content: JSON.stringify(results) }))
-              )
+                const results = yield* Effect.all(
+                  input.threads.map((thread) =>
+                    Effect.gen(function* waitForThread() {
+                      yield* ctx.session.wait({ sessionID: thread });
+                      const info = yield* ctx.session.get({
+                        sessionID: thread,
+                      });
+                      const messages = yield* ctx.session.context({
+                        sessionID: thread,
+                      });
+
+                      return {
+                        id: thread,
+                        outcome: info.outcome,
+                        response: lastAssistantText(messages),
+                      };
+                    })
+                  ),
+                  { concurrency: "unbounded" }
+                );
+
+                return { content: JSON.stringify(results) };
+              })
             ),
           input: WaitForThreadsInput,
           name: "wait_for_threads",

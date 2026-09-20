@@ -51,7 +51,7 @@ Academy also registers session communication tools for creating, finding, readin
       "package": "@divaltor/academy",
       "options": {
         "communication": {
-          "readerModel": "opencode/glm-5.3-flash",
+          "thread_summary": "opencode/glm-5.3-flash",
         },
       },
     },
