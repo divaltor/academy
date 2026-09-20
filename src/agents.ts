@@ -26,6 +26,10 @@ interface AcademyAgent {
   readonly permissions: readonly Permission[];
 }
 
+const defaultPermissions: readonly Permission[] = [
+  { action: "*", effect: "allow", resource: "*" },
+];
+
 export const agents: readonly AcademyAgent[] = [
   {
     color: "#8994B8",
@@ -35,6 +39,7 @@ export const agents: readonly AcademyAgent[] = [
     mode: "primary",
     name: "Diana",
     permissions: [
+      ...defaultPermissions,
       { action: "todowrite", effect: "deny", resource: "*" },
       { action: "websearch", effect: "allow", resource: "*" },
       { action: "webfetch", effect: "allow", resource: "*" },
@@ -59,6 +64,7 @@ export const agents: readonly AcademyAgent[] = [
     mode: "subagent",
     name: "Bourbon",
     permissions: [
+      ...defaultPermissions,
       { action: "subagent", effect: "deny", resource: "*" },
       { action: "todowrite", effect: "deny", resource: "*" },
       { action: "question", effect: "deny", resource: "*" },
@@ -78,6 +84,7 @@ export const agents: readonly AcademyAgent[] = [
     model: { id: "gpt-6-astra", providerID: "openai", variant: "xhigh" },
     name: "Agnes",
     permissions: [
+      ...defaultPermissions,
       { action: "edit", effect: "deny", resource: "*" },
       { action: "shell", effect: "deny", resource: "*" },
       { action: "subagent", effect: "deny", resource: "*" },
@@ -101,6 +108,7 @@ export const agents: readonly AcademyAgent[] = [
     model: { id: "gpt-5.6-sol", providerID: "openai", variant: "none" },
     name: "Cafe",
     permissions: [
+      ...defaultPermissions,
       { action: "edit", effect: "deny", resource: "*" },
       { action: "shell", effect: "deny", resource: "*" },
       { action: "subagent", effect: "deny", resource: "*" },
@@ -122,6 +130,7 @@ export const agents: readonly AcademyAgent[] = [
     model: { id: "gpt-5.6-terra", providerID: "openai", variant: "low" },
     name: "Dantsu",
     permissions: [
+      ...defaultPermissions,
       { action: "edit", effect: "deny", resource: "*" },
       { action: "subagent", effect: "deny", resource: "*" },
       { action: "todowrite", effect: "deny", resource: "*" },
@@ -142,6 +151,7 @@ export const agents: readonly AcademyAgent[] = [
     model: { id: "gpt-5.6-sol", providerID: "openai", variant: "high" },
     name: "Bellno",
     permissions: [
+      ...defaultPermissions,
       { action: "edit", effect: "deny", resource: "*" },
       { action: "subagent", effect: "deny", resource: "*" },
       { action: "todowrite", effect: "deny", resource: "*" },
