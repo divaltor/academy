@@ -4,6 +4,8 @@ import cafeSystem from "./agents/cafe.txt" with { type: "text" };
 import dantsuSystem from "./agents/dantsu.txt" with { type: "text" };
 import rudolfSystem from "./agents/rudolf.txt" with { type: "text" };
 
+export { default as rudolfCommunicationPrompt } from "./agents/rudolf-communication.txt" with { type: "text" };
+
 interface Permission {
   readonly action: string;
   readonly resource: string;

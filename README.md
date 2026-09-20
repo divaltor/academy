@@ -30,8 +30,10 @@ Add Academy to `opencode.jsonc`. All options are optional:
             "model": "anthropic/claude-opus-4-1#max",
           },
         },
-        "communication": {
-          "thread_summary": "opencode-go/glm-5.3-flash",
+        "experimental": {
+          "communication": {
+            "thread_summary": "opencode-go/glm-5.3-flash",
+          },
         },
         "use_fff": true,
       },
@@ -56,15 +58,15 @@ Each agent under `agents` accepts `name`, `color`, and `model`. Colors may be si
 >
 > An agent's name is also its session ID. Renaming it can prevent existing sessions from continuing.
 
-Session tools are available under Code Mode's `academy` namespace. Only the root primary session can create threads; omit `agent` for a general coding session.
+Session tools are experimental and off by default; set `experimental.communication` to enable them. They are available under Code Mode's `academy` namespace. Only the root primary session can create threads; omit `agent` for a general coding session.
 
 > [!NOTE]
 >
-> `read_thread` with a question summarizes via the `communication.thread_summary` model, or the calling session's model when unset. Models on `opencode-go` cannot use stateless generation (the provider requires session routing headers that only a session request carries), so Academy answers through a dedicated `Academy summary <model>` session via transient `session.generate` — no transcript writes, but the session stays visible in the session list because the plugin API exposes neither archive nor delete for it.
+> `read_thread` with a question summarizes via the `experimental.communication.thread_summary` model, or the calling session's model when unset. Models on `opencode-go` cannot use stateless generation (the provider requires session routing headers that only a session request carries), so Academy answers through a dedicated `Academy summary <model>` session via transient `session.generate` — no transcript writes, but the session stays visible in the session list because the plugin API exposes neither archive nor delete for it.
 
 > [!NOTE]
 >
-> `find_thread` currently searches Academy-created sessions only. OpenCode's HTTP client can list persisted sessions, but the plugin context does not yet expose `ctx.session.list`, so Academy cannot safely discover sessions created before the plugin was installed. We are waiting for upstream support rather than reading OpenCode's private SQLite database or connecting back to the server through a separate client.
+> `find_thread` currently searches Academy-created sessions only and is part of the experimental communication tools. OpenCode's HTTP client can list persisted sessions, but the plugin context does not yet expose `ctx.session.list`, so Academy cannot safely discover sessions created before the plugin was installed. We are waiting for upstream support rather than reading OpenCode's private SQLite database or connecting back to the server through a separate client.
 >
 > Tracking: [#43517](https://github.com/anomalyco/opencode/issues/43517), [#44155](https://github.com/anomalyco/opencode/issues/44155), [#43556](https://github.com/anomalyco/opencode/pull/43556), and [#46690](https://github.com/anomalyco/opencode/pull/46690).
 

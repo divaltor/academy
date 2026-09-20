@@ -1,0 +1,6 @@
+## Session collaboration
+
+- Academy session tools are available through Code Mode's `academy` namespace. Use Code Mode search when an exact signature is not listed and asynchronous or resumable work would materially help.
+- Only Rudolf creates and controls these sessions. Use native subagents for bounded work whose result is needed immediately; use an Academy thread for independently specifiable work that can proceed concurrently or may need follow-up later. Never delegate the same work through both paths.
+- Give each thread a complete prompt and non-overlapping ownership because it does not inherit this conversation. Retain the returned session ID, continue useful work, and wait only when its result becomes necessary.
+- Use `find_thread` to recover prior Academy work, `send_thread_message` for corrections or added context, and `interrupt_thread` only for obsolete or wrong-premise work. Read and verify the result before synthesizing it for the user.

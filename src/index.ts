@@ -1,7 +1,7 @@
 import { Agent, Model, Plugin } from "@opencode/plugin/effect";
 import { Config, Effect, Option, Redacted, Schema } from "effect";
 
-import { agents } from "./agents";
+import { agents, rudolfCommunicationPrompt } from "./agents";
 import { FffTools } from "./fff-tools";
 import { SessionCommunication } from "./session-communication";
 
@@ -26,9 +26,13 @@ const AgentsOptions = Schema.Struct({
   rudolf: Schema.optionalKey(AgentOptions),
 });
 
+const ExperimentalOptions = Schema.Struct({
+  communication: Schema.optionalKey(SessionCommunication.Options),
+});
+
 const AcademyOptions = Schema.Struct({
   agents: Schema.optionalKey(AgentsOptions),
-  communication: Schema.optionalKey(SessionCommunication.Options),
+  experimental: Schema.optionalKey(ExperimentalOptions),
   use_fff: Schema.optionalKey(Schema.Boolean),
 });
 
@@ -49,6 +53,7 @@ const setup = Effect.fn("Academy.setup")(function* setup(ctx: Plugin.Context) {
   const agentID = (id: (typeof agents)[number]["id"]) =>
     Agent.ID.make(agentOptions[id]?.name ?? id);
   const configuredAgentIDs = agents.map((agent) => agentID(agent.id));
+  const communication = options.experimental?.communication;
 
   if (new Set(configuredAgentIDs).size !== configuredAgentIDs.length) {
     return yield* Effect.die(
@@ -96,7 +101,14 @@ const setup = Effect.fn("Academy.setup")(function* setup(ctx: Plugin.Context) {
         agent.mode = definition.mode;
         agent.color =
           agentOptions[definition.id]?.color ?? agent.color ?? definition.color;
-        agent.system = definition.system.replaceAll(
+        const base =
+          definition.id === "rudolf" && communication !== undefined
+            ? definition.system.replace(
+                "# Communication",
+                `${rudolfCommunicationPrompt}\n\n# Communication`
+              )
+            : definition.system;
+        agent.system = base.replaceAll(
           /\b(?:Rudolf|Agnes|Cafe|Dantsu|Bellno)\b/gu,
           (name) => agentNames.get(name) ?? name
         );
@@ -121,11 +133,9 @@ const setup = Effect.fn("Academy.setup")(function* setup(ctx: Plugin.Context) {
     editor.default(agentID("rudolf"));
   });
 
-  yield* SessionCommunication.register(
-    ctx,
-    options.communication ?? {},
-    agentID("rudolf")
-  );
+  if (communication !== undefined) {
+    yield* SessionCommunication.register(ctx, communication, agentID("rudolf"));
+  }
 });
 
 export default Plugin.define({
