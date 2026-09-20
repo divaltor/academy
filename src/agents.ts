@@ -11,8 +11,17 @@ interface Permission {
   readonly effect: "allow" | "ask" | "deny";
 }
 
+const agentIds = [
+  "agnes",
+  "bellno",
+  "bourbon",
+  "cafe",
+  "dantsu",
+  "diana",
+] as const;
+
 interface AcademyAgent {
-  readonly id: string;
+  readonly id: (typeof agentIds)[number];
   readonly name: string;
   readonly description: string;
   readonly mode: "primary" | "subagent";
@@ -32,12 +41,12 @@ const defaultPermissions: readonly Permission[] = [
 
 export const agents: readonly AcademyAgent[] = [
   {
-    color: "#8994B8",
+    color: "#6678A4",
     description:
       "Primary agent for scoped implementation, research, and delegation.",
     id: "diana",
     mode: "primary",
-    name: "Diana",
+    name: "Rudolf",
     permissions: [
       ...defaultPermissions,
       { action: "todowrite", effect: "deny", resource: "*" },

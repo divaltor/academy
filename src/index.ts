@@ -3,6 +3,11 @@ import { Config, Effect, Option, Redacted, Schema } from "effect";
 
 import { agents } from "./agents";
 
+const AgentOptions = Schema.Struct({
+  color: Schema.optionalKey(Agent.Color),
+  name: Schema.optionalKey(Schema.NonEmptyString),
+});
+
 const AcademyOptions = Schema.Struct({
   agentNames: Schema.optionalKey(
     Schema.Struct({
@@ -14,6 +19,12 @@ const AcademyOptions = Schema.Struct({
       diana: Schema.optionalKey(Schema.NonEmptyString),
     })
   ),
+  agnes: Schema.optionalKey(AgentOptions),
+  bellno: Schema.optionalKey(AgentOptions),
+  bourbon: Schema.optionalKey(AgentOptions),
+  cafe: Schema.optionalKey(AgentOptions),
+  dantsu: Schema.optionalKey(AgentOptions),
+  diana: Schema.optionalKey(AgentOptions),
 });
 
 const setup = Effect.fn("Academy.setup")(function* setup(ctx: Plugin.Context) {
@@ -23,10 +34,12 @@ const setup = Effect.fn("Academy.setup")(function* setup(ctx: Plugin.Context) {
   const options = yield* Schema.decodeUnknownEffect(AcademyOptions, {
     onExcessProperty: "error",
   })(ctx.options).pipe(Effect.orDie);
-  const configuredNames: Readonly<Record<string, string | undefined>> =
-    options.agentNames ?? {};
+  const legacyNames = options.agentNames ?? {};
   const agentNames = new Map(
-    agents.map((agent) => [agent.name, configuredNames[agent.id] ?? agent.name])
+    agents.map((agent) => [
+      agent.name,
+      options[agent.id]?.name ?? legacyNames[agent.id] ?? agent.name,
+    ])
   );
 
   yield* ctx.mcp.transform((editor) => {
@@ -57,9 +70,10 @@ const setup = Effect.fn("Academy.setup")(function* setup(ctx: Plugin.Context) {
         );
         agent.description = definition.description;
         agent.mode = definition.mode;
-        agent.color = definition.color;
+        agent.color =
+          options[definition.id]?.color ?? agent.color ?? definition.color;
         agent.system = definition.system.replaceAll(
-          /\b(?:Diana|Agnes|Bourbon|Cafe|Dantsu|Bellno)\b/gu,
+          /\b(?:Rudolf|Agnes|Bourbon|Cafe|Dantsu|Bellno)\b/gu,
           (name) => agentNames.get(name) ?? name
         );
         agent.permissions = definition.permissions.map((permission) => ({

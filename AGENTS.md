@@ -4,7 +4,7 @@
 2. Run `bun run lint` for lint errors, then `bun run typecheck` for type errors. Don't run `format` — formatting is applied via `bun run fix` and the pre-commit hook.
 3. Plugin entry is `src/index.ts`: default-export `Plugin.define({ id: "academy", effect })` from `@opencode/plugin/effect`. The effect runs in a managed scope; scoped registrations are disposed when the plugin unloads.
 4. Transforms are synchronous edits of domain state: load external data before registering, then call `reload()` when captured inputs change. Later transforms see earlier ones; a read value is never mutated by later rebuilds.
-5. Academy owns the Umamusume agent roster: Diana is the default primary agent; Agnes, Cafe, Dantsu, and Bellno are specialist subagents. Register them through `ctx.agent.transform`, not project or user configuration.
+5. Academy owns the Umamusume agent roster: Rudolf is the default primary agent; Agnes, Cafe, Dantsu, and Bellno are specialist subagents. Register them through `ctx.agent.transform`, not project or user configuration.
 6. Don't use `git stash` mid-session; other agents or the user can edit files at the same time.
 7. Follow conventional commits: `type(scope): summary` with types `feat`, `fix`, `docs`, `chore`, `refactor`, `test`.
 

@@ -8,7 +8,7 @@ Inspired by _Umamusume: Pretty Derby_, Academy gives OpenCode a focused team of 
 
 Academy registers a focused roster of Umamusume agents:
 
-- **Diana** — default primary coding agent, replacing OpenCode's Build agent
+- **Rudolf** — default primary coding agent, replacing OpenCode's Build agent
 - **Bourbon** — general-purpose implementation and validation subagent
 - **Agnes** — Oracle-style technical advisor
 - **Cafe** — Librarian-style external researcher
@@ -17,7 +17,7 @@ Academy registers a focused roster of Umamusume agents:
 
 ## Configuration
 
-Add Academy to `opencode.jsonc`. Agent names are optional; omit `agentNames` or any entry to keep the Umamusume defaults:
+Add Academy to `opencode.jsonc`. Each agent can override its display name and color; omit an agent or field to keep the Academy default:
 
 ```jsonc
 {
@@ -26,13 +26,9 @@ Add Academy to `opencode.jsonc`. Agent names are optional; omit `agentNames` or 
     {
       "package": "@divaltor/academy",
       "options": {
-        "agentNames": {
-          "diana": "Diana",
-          "bourbon": "Bourbon",
-          "agnes": "Agnes",
-          "cafe": "Cafe",
-          "dantsu": "Dantsu",
-          "bellno": "Bellno",
+        "diana": {
+          "name": "Emperor",
+          "color": "#8994B8",
         },
       },
     },
@@ -40,11 +36,11 @@ Add Academy to `opencode.jsonc`. Agent names are optional; omit `agentNames` or 
 }
 ```
 
-Custom names change the agents' displayed names and persona references. Their stable IDs (`diana`, `bourbon`, `agnes`, `cafe`, `dantsu`, and `bellno`) remain unchanged for permissions and invocation. Local paths resolve relative to the config file. See the [plugin docs](https://opencode.ai/v2/docs/build/plugins) to learn more.
+Colors accept six-digit hex values or OpenCode theme colors: `primary`, `secondary`, `accent`, `success`, `warning`, `error`, and `info`. You can alternatively set a color with OpenCode's native `agents.<id>.color` configuration. Custom names also update persona references. Stable IDs (`diana`, `bourbon`, `agnes`, `cafe`, `dantsu`, and `bellno`) remain unchanged for permissions and invocation. The previous `agentNames` option remains supported for compatibility. See the [plugin docs](https://opencode.ai/v2/docs/build/plugins) to learn more.
 
 ### Private GitHub repositories
 
-Academy connects Cafe, Diana, and Bellno to GitHub's official MCP server in read-only mode when `GITHUB_TOKEN` is set. Use a dedicated fine-grained personal access token limited to the required repositories, with read-only Contents, Issues, and Pull requests permissions:
+Academy connects Cafe, Rudolf, and Bellno to GitHub's official MCP server in read-only mode when `GITHUB_TOKEN` is set. Use a dedicated fine-grained personal access token limited to the required repositories, with read-only Contents, Issues, and Pull requests permissions:
 
 ```bash
 export GITHUB_TOKEN="github_pat_..."
