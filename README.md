@@ -40,6 +40,25 @@ Colors accept six-digit hex values or OpenCode theme colors: `primary`, `seconda
 
 > [!WARNING] Choose custom names when first setting up Academy and avoid changing them later. OpenCode stores the selected agent ID in each session, so renaming an agent removes the ID referenced by existing sessions and can prevent those sessions from continuing.
 
+Academy also registers session communication tools for creating, finding, reading, messaging, waiting for, and interrupting independent OpenCode sessions. `read_thread` can answer a focused question about another session with a small reader model. It defaults to OpenCode Zen's GLM 5.3 Flash and can be changed in plugin options:
+
+```jsonc
+{
+  "plugins": [
+    {
+      "package": "@divaltor/academy",
+      "options": {
+        "communication": {
+          "readerModel": "opencode/glm-5.3-flash",
+        },
+      },
+    },
+  ],
+}
+```
+
+`find_thread` searches Academy's persistent registry, so sessions created by these tools remain discoverable after the creating session or plugin scope ends. OpenCode currently does not let plugins enumerate arbitrary sessions, so sessions created outside Academy are not included.
+
 See the [plugin docs](https://opencode.ai/v2/docs/build/plugins) to learn more.
 
 ### Private GitHub repositories
