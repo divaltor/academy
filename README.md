@@ -51,7 +51,13 @@ Each agent accepts `name`, `color`, and `model`. Colors may be six-digit hex val
 >
 > An agent's name is also its session ID. Renaming it can prevent existing sessions from continuing.
 
-Session tools are available under Code Mode's `academy` namespace. Only the root primary session can create threads; omit `agent` for a general coding session. `find_thread` searches Academy-created sessions only.
+Session tools are available under Code Mode's `academy` namespace. Only the root primary session can create threads; omit `agent` for a general coding session.
+
+> [!NOTE]
+>
+> `find_thread` currently searches Academy-created sessions only. OpenCode's HTTP client can list persisted sessions, but the plugin context does not yet expose `ctx.session.list`, so Academy cannot safely discover sessions created before the plugin was installed. We are waiting for upstream support rather than reading OpenCode's private SQLite database or connecting back to the server through a separate client.
+>
+> Tracking: [#43517](https://github.com/anomalyco/opencode/issues/43517), [#44155](https://github.com/anomalyco/opencode/issues/44155), [#43556](https://github.com/anomalyco/opencode/pull/43556), and [#46690](https://github.com/anomalyco/opencode/pull/46690).
 
 ### Private GitHub access
 
