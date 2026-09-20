@@ -26,6 +26,7 @@ Add Academy to `opencode.jsonc`. All options are optional:
         "rudolf": {
           "name": "Emperor",
           "color": "#8994B8",
+          "model": "anthropic/claude-opus-4-1#max",
         },
         "communication": {
           "thread_summary": "opencode-go/glm-5.3-flash",
@@ -36,7 +37,15 @@ Add Academy to `opencode.jsonc`. All options are optional:
 }
 ```
 
-Each agent accepts `name` and `color`. Colors may be six-digit hex values or OpenCode theme colors.
+Each agent accepts `name`, `color`, and `model`. Colors may be six-digit hex values or OpenCode theme colors. Model references use `provider/model` or `provider/model#variant`.
+
+| Agent  | Default model                 |
+| ------ | ----------------------------- |
+| Rudolf | OpenCode's configured default |
+| Agnes  | `openai/gpt-6-astra#xhigh`    |
+| Cafe   | `openai/gpt-5.6-sol#none`     |
+| Dantsu | `openai/gpt-5.6-terra#low`    |
+| Bellno | `openai/gpt-5.6-sol#high`     |
 
 > [!WARNING] An agent's name is also its session ID. Renaming it can prevent existing sessions from continuing.
 

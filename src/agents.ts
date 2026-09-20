@@ -19,11 +19,7 @@ interface AcademyAgent {
   readonly mode: "primary" | "subagent";
   readonly color: string;
   readonly system: string;
-  readonly model?: {
-    readonly providerID: string;
-    readonly id: string;
-    readonly variant: string;
-  };
+  readonly model?: string;
   readonly permissions: readonly Permission[];
 }
 
@@ -67,7 +63,7 @@ export const agents: readonly AcademyAgent[] = [
       "Oracle-style read-only advisor for architecture decisions, debugging, alternatives, and high-impact plans.",
     id: "agnes",
     mode: "subagent",
-    model: { id: "gpt-6-astra", providerID: "openai", variant: "xhigh" },
+    model: "openai/gpt-6-astra#xhigh",
     name: "Agnes",
     permissions: [
       ...defaultPermissions,
@@ -92,7 +88,7 @@ export const agents: readonly AcademyAgent[] = [
       "Librarian-style external research for official docs, API behavior, dependency internals, and remote repositories.",
     id: "cafe",
     mode: "subagent",
-    model: { id: "gpt-5.6-sol", providerID: "openai", variant: "none" },
+    model: "openai/gpt-5.6-sol#none",
     name: "Cafe",
     permissions: [
       ...defaultPermissions,
@@ -115,7 +111,7 @@ export const agents: readonly AcademyAgent[] = [
       "Finder-style local codebase discovery by behavior, ownership boundary, and call or data flow.",
     id: "dantsu",
     mode: "subagent",
-    model: { id: "gpt-5.6-terra", providerID: "openai", variant: "low" },
+    model: "openai/gpt-5.6-terra#low",
     name: "Dantsu",
     permissions: [
       ...defaultPermissions,
@@ -137,7 +133,7 @@ export const agents: readonly AcademyAgent[] = [
       "Read-only general reviewer for complete, systematic reviews of diffs, commits, branches, and pull requests.",
     id: "bellno",
     mode: "subagent",
-    model: { id: "gpt-5.6-sol", providerID: "openai", variant: "high" },
+    model: "openai/gpt-5.6-sol#high",
     name: "Bellno",
     permissions: [
       ...defaultPermissions,

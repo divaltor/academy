@@ -1,11 +1,19 @@
-import { Agent, Model, Plugin, Provider } from "@opencode/plugin/effect";
+import { Agent, Model, Plugin } from "@opencode/plugin/effect";
 import { Config, Effect, Option, Redacted, Schema } from "effect";
 
 import { agents } from "./agents";
 import { SessionCommunication } from "./session-communication";
 
+const ModelReference = Schema.NonEmptyString.check(
+  Schema.isPattern(/^[^/#]+\/[^#]+(?:#[^#]+)?$/u)
+);
+
+const parseModel = (reference: string | undefined) =>
+  reference ? Model.Ref.parse(reference) : undefined;
+
 const AgentOptions = Schema.Struct({
   color: Schema.optionalKey(Agent.Color),
+  model: Schema.optionalKey(ModelReference),
   name: Schema.optionalKey(Schema.NonEmptyString),
 });
 
@@ -90,13 +98,9 @@ const setup = Effect.fn("Academy.setup")(function* setup(ctx: Plugin.Context) {
               : permission.resource,
           };
         });
-        agent.model = definition.model
-          ? {
-              id: Model.ID.make(definition.model.id),
-              providerID: Provider.ID.make(definition.model.providerID),
-              variant: Model.VariantID.make(definition.model.variant),
-            }
-          : undefined;
+        agent.model = parseModel(
+          options[definition.id]?.model ?? definition.model
+        );
       });
     }
 
