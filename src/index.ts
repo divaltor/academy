@@ -9,23 +9,11 @@ const AgentOptions = Schema.Struct({
 });
 
 const AcademyOptions = Schema.Struct({
-  agentNames: Schema.optionalKey(
-    Schema.Struct({
-      agnes: Schema.optionalKey(Schema.NonEmptyString),
-      bellno: Schema.optionalKey(Schema.NonEmptyString),
-      bourbon: Schema.optionalKey(Schema.NonEmptyString),
-      cafe: Schema.optionalKey(Schema.NonEmptyString),
-      dantsu: Schema.optionalKey(Schema.NonEmptyString),
-      diana: Schema.optionalKey(Schema.NonEmptyString),
-      rudolf: Schema.optionalKey(Schema.NonEmptyString),
-    })
-  ),
   agnes: Schema.optionalKey(AgentOptions),
   bellno: Schema.optionalKey(AgentOptions),
   bourbon: Schema.optionalKey(AgentOptions),
   cafe: Schema.optionalKey(AgentOptions),
   dantsu: Schema.optionalKey(AgentOptions),
-  diana: Schema.optionalKey(AgentOptions),
   rudolf: Schema.optionalKey(AgentOptions),
 });
 
@@ -36,16 +24,8 @@ const setup = Effect.fn("Academy.setup")(function* setup(ctx: Plugin.Context) {
   const options = yield* Schema.decodeUnknownEffect(AcademyOptions, {
     onExcessProperty: "error",
   })(ctx.options).pipe(Effect.orDie);
-  const legacyNames = options.agentNames ?? {};
   const agentNames = new Map(
-    agents.map((agent) => [
-      agent.name,
-      options[agent.id]?.name ??
-        (agent.id === "rudolf" ? options.diana?.name : undefined) ??
-        legacyNames[agent.id] ??
-        (agent.id === "rudolf" ? legacyNames.diana : undefined) ??
-        agent.name,
-    ])
+    agents.map((agent) => [agent.name, options[agent.id]?.name ?? agent.name])
   );
 
   yield* ctx.mcp.transform((editor) => {
@@ -65,7 +45,7 @@ const setup = Effect.fn("Academy.setup")(function* setup(ctx: Plugin.Context) {
   });
 
   yield* ctx.agent.transform((editor) => {
-    for (const id of ["build", "plan", "explore", "general", "diana"]) {
+    for (const id of ["build", "plan", "explore", "general"]) {
       editor.remove(id);
     }
 
@@ -77,10 +57,7 @@ const setup = Effect.fn("Academy.setup")(function* setup(ctx: Plugin.Context) {
         agent.description = definition.description;
         agent.mode = definition.mode;
         agent.color =
-          options[definition.id]?.color ??
-          (definition.id === "rudolf" ? options.diana?.color : undefined) ??
-          agent.color ??
-          definition.color;
+          options[definition.id]?.color ?? agent.color ?? definition.color;
         agent.system = definition.system.replaceAll(
           /\b(?:Rudolf|Agnes|Bourbon|Cafe|Dantsu|Bellno)\b/gu,
           (name) => agentNames.get(name) ?? name

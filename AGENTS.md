@@ -7,6 +7,7 @@
 5. Academy owns the Umamusume agent roster: Rudolf is the default primary agent; Agnes, Cafe, Dantsu, and Bellno are specialist subagents. Register them through `ctx.agent.transform`, not project or user configuration.
 6. Don't use `git stash` mid-session; other agents or the user can edit files at the same time.
 7. Follow conventional commits: `type(scope): summary` with types `feat`, `fix`, `docs`, `chore`, `refactor`, `test`.
+8. Do not preserve backward compatibility; remove legacy names, aliases, and configuration when replacing behavior.
 
 ## Communication
 

@@ -36,7 +36,7 @@ Add Academy to `opencode.jsonc`. Each agent can override its display name and co
 }
 ```
 
-Colors accept six-digit hex values or OpenCode theme colors: `primary`, `secondary`, `accent`, `success`, `warning`, `error`, and `info`. You can alternatively set a color with OpenCode's native `agents.<id>.color` configuration. Custom names also update persona references. Agent IDs are `rudolf`, `bourbon`, `agnes`, `cafe`, `dantsu`, and `bellno`. The previous `agentNames` option and `diana` plugin option remain supported for compatibility. See the [plugin docs](https://opencode.ai/v2/docs/build/plugins) to learn more.
+Colors accept six-digit hex values or OpenCode theme colors: `primary`, `secondary`, `accent`, `success`, `warning`, `error`, and `info`. You can alternatively set a color with OpenCode's native `agents.<id>.color` configuration. Custom names also update persona references. Agent IDs are `rudolf`, `bourbon`, `agnes`, `cafe`, `dantsu`, and `bellno`. See the [plugin docs](https://opencode.ai/v2/docs/build/plugins) to learn more.
 
 ### Private GitHub repositories
 
