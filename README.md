@@ -45,7 +45,7 @@ Add Academy to `opencode.jsonc`. All options are optional:
 
 Each agent under `agents` accepts `name`, `color`, and `model`. Colors may be six-digit hex values or OpenCode theme colors. Model references use `provider/model` or `provider/model#variant`.
 
-`use_fff` replaces OpenCode's built-in `glob` and `grep` tools globally with [FFF](https://github.com/d-kimuson/fff.nvim) for every agent. Enabled by default; set to `false` to keep the built-in tools. This requires a platform supported by `@ff-labs/fff-bun`.
+`use_fff` replaces OpenCode's built-in `glob` and `grep` tools globally with [FFF](https://github.com/dmtrKovalenko/fff) for every agent. Enabled by default; set to `false` to keep the built-in tools. This requires a platform supported by `@ff-labs/fff-bun`.
 
 | Agent  | Default model                 |
 | ------ | ----------------------------- |
