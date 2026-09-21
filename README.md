@@ -14,7 +14,7 @@ An OpenCode plugin that turns coding agents into a Tracen Academy roster: specia
 
 ## Configuration
 
-Add Academy to `opencode.jsonc`. All options are optional:
+Add Academy to `opencode.jsonc`. All options are optional. Omit the version to track `latest`; append `@x.y.z` to pin a release:
 
 ```jsonc
 {
@@ -44,6 +44,8 @@ Add Academy to `opencode.jsonc`. All options are optional:
 ```
 
 Each agent under `agents` accepts `name`, `color`, and `model`. Colors may be six-digit hex values or OpenCode theme colors. Model references use `provider/model` or `provider/model#variant`.
+
+Without a version suffix OpenCode resolves `latest` on install; run `opencode plugin update` to pull newer releases.
 
 `use_fff` replaces OpenCode's built-in `glob` and `grep` tools globally with [FFF](https://github.com/dmtrKovalenko/fff) for every agent. Enabled by default; set to `false` to keep the built-in tools. This requires a platform supported by `@ff-labs/fff-bun`.
 
