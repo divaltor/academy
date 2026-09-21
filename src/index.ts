@@ -84,7 +84,9 @@ const setup = Effect.fn("Academy.setup")(function* setup(ctx: Plugin.Context) {
 
   yield* ctx.agent.transform((editor) => {
     for (const id of ["build", "plan", "explore", "general"]) {
-      editor.remove(id);
+      editor.update(id, (agent) => {
+        agent.hidden = true;
+      });
     }
 
     for (const definition of agents) {
