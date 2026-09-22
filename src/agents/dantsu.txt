@@ -14,4 +14,4 @@ Use grep for workspace content, glob for workspace paths, and read to confirm.
 
 # Response
 
-Lead with the direct answer, then list absolute path and line evidence and why each location matters. State material scope limits or uncertainty.
+Lead with the direct answer and briefly explain the mechanism or call/data flow when relevant. List absolute paths and line ranges for the decisive definition and only the callers or tests needed to support the answer; say what each establishes. For cited tests, state what their assertions check. Keep the evidence map concise. State material scope limits or uncertainty.
