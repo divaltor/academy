@@ -1,6 +1,6 @@
 {
   "name": "@divaltor/academy",
-  "version": "0.4.6",
+  "version": "0.4.7",
   "description": "An OpenCode plugin that trains a Tracen Academy roster of specialist coding agents to research, build, and review.",
   "homepage": "https://github.com/divaltor/academy#readme",
   "bugs": {
@@ -29,7 +29,7 @@
     "fix": "ultracite fix"
   },
   "dependencies": {
-    "@ff-labs/fff-bun": "0.10.6",
+    "@ff-labs/fff-bun": "0.11.0",
     "@opencode/plugin": "2.0.11",
     "@opencode/schema": "2.0.11",
     "effect": "4.0.0-rc.112"
