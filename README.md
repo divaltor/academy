@@ -53,9 +53,9 @@ Without a version suffix OpenCode resolves `latest` on install; run `opencode pl
 | ------ | ----------------------------- |
 | Rudolf | OpenCode's configured default |
 | Agnes  | `openai/gpt-6-astra#xhigh`    |
-| Cafe   | `openai/gpt-5.6-sol#none`     |
-| Dantsu | `openai/gpt-5.6-terra#low`    |
-| Bellno | `openai/gpt-5.6-sol#high`     |
+| Cafe   | `openai/gpt-6-sol#none`       |
+| Dantsu | `openai/gpt-6-luna#high`      |
+| Bellno | `openai/gpt-6-sol#high`       |
 
 > [!WARNING]
 >
