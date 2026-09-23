@@ -206,7 +206,8 @@ export namespace SessionCommunication {
     function* register(
       ctx: Plugin.Context,
       options: Options,
-      primaryAgent: Agent.ID
+      primaryAgent: Agent.ID,
+      disabledAgentIDs: ReadonlySet<Agent.ID>
     ) {
       const scanRecords = Effect.fn("SessionCommunication.scanThreadRecords")(
         function* scanThreadRecords(
@@ -339,6 +340,12 @@ export namespace SessionCommunication {
                   return failure(
                     "only the primary Academy session can create threads"
                   );
+                }
+                if (
+                  input.agent !== undefined &&
+                  disabledAgentIDs.has(input.agent)
+                ) {
+                  return failure(`agent ${input.agent} is disabled`);
                 }
 
                 const detached = input.detached ?? false;

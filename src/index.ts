@@ -14,6 +14,7 @@ const parseModel = (reference: string | undefined) =>
 
 const AgentOptions = Schema.Struct({
   color: Schema.optionalKey(Agent.Color),
+  disabled: Schema.optionalKey(Schema.Boolean),
   model: Schema.optionalKey(ModelReference),
   name: Schema.optionalKey(Schema.NonEmptyString),
 });
@@ -53,6 +54,12 @@ const setup = Effect.fn("Academy.setup")(function* setup(ctx: Plugin.Context) {
   const agentID = (id: (typeof agents)[number]["id"]) =>
     Agent.ID.make(agentOptions[id]?.name ?? id);
   const configuredAgentIDs = agents.map((agent) => agentID(agent.id));
+  const disabledAgentIDs = new Set(
+    agents
+      .filter((agent) => agentOptions[agent.id]?.disabled === true)
+      .map((agent) => agentID(agent.id))
+  );
+  const rudolfDisabled = disabledAgentIDs.has(agentID("rudolf"));
   const communication = options.experimental?.communication;
   const communicationEnabled = communication?.enabled === true;
 
@@ -85,7 +92,7 @@ const setup = Effect.fn("Academy.setup")(function* setup(ctx: Plugin.Context) {
   yield* ctx.agent.transform((editor) => {
     for (const id of ["build", "plan", "explore", "general"]) {
       editor.update(id, (agent) => {
-        agent.hidden = true;
+        agent.hidden = !(id === "build" && rudolfDisabled);
       });
     }
 
@@ -102,6 +109,7 @@ const setup = Effect.fn("Academy.setup")(function* setup(ctx: Plugin.Context) {
         );
         agent.description = definition.description;
         agent.mode = definition.mode;
+        agent.hidden = disabledAgentIDs.has(agentID(definition.id));
         agent.color =
           agentOptions[definition.id]?.color ?? agent.color ?? definition.color;
         const base =
@@ -133,11 +141,36 @@ const setup = Effect.fn("Academy.setup")(function* setup(ctx: Plugin.Context) {
       });
     }
 
+    for (const agent of editor.list()) {
+      editor.update(agent.id, (editable) => {
+        editable.permissions.push(
+          ...disabledAgentIDs.values().map((id) => ({
+            action: "subagent",
+            effect: "deny" as const,
+            resource: id,
+          }))
+        );
+      });
+    }
+
+    if (rudolfDisabled) {
+      editor.default(
+        editor.list().find((agent) => agent.mode === "primary" && !agent.hidden)
+          ?.id
+      );
+      return;
+    }
+
     editor.default(agentID("rudolf"));
   });
 
   if (communication !== undefined && communicationEnabled) {
-    yield* SessionCommunication.register(ctx, communication, agentID("rudolf"));
+    yield* SessionCommunication.register(
+      ctx,
+      communication,
+      agentID("rudolf"),
+      disabledAgentIDs
+    );
   }
 });
 

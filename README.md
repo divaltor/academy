@@ -29,6 +29,9 @@ Add Academy to `opencode.jsonc`. All options are optional. Omit the version to t
             "color": "#8994B8",
             "model": "opencode/claude-opus-5#max",
           },
+          "cafe": {
+            "disabled": true,
+          },
         },
         "experimental": {
           "communication": {
@@ -43,7 +46,7 @@ Add Academy to `opencode.jsonc`. All options are optional. Omit the version to t
 }
 ```
 
-Each agent under `agents` accepts `name`, `color`, and `model`. Colors may be six-digit hex values or OpenCode theme colors. Model references use `provider/model` or `provider/model#variant`.
+Each agent under `agents` accepts `name`, `color`, `model`, and `disabled`. Colors may be six-digit hex values or OpenCode theme colors. Model references use `provider/model` or `provider/model#variant`. Set `disabled` to `true` to hide an agent and prevent new subagent or Academy thread creation while retaining its definition so existing sessions can continue. Disabling Rudolf restores OpenCode's Build agent as the default.
 
 Without a version suffix OpenCode resolves `latest` on install; run `opencode plugin update` to pull newer releases.
 
