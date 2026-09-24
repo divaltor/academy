@@ -4,6 +4,7 @@ import { Config, Effect, Option, Redacted, Schema } from "effect";
 import { agents, rudolfCommunicationPrompt } from "./agents";
 import { FffTools } from "./fff-tools";
 import { SessionCommunication } from "./session-communication";
+import { SessionGuidance } from "./session-guidance";
 
 const ModelReference = Schema.NonEmptyString.check(
   Schema.isPattern(/^[^/#]+\/[^#]+(?:#[^#]+)?$/u)
@@ -88,6 +89,8 @@ const setup = Effect.fn("Academy.setup")(function* setup(ctx: Plugin.Context) {
   if (options.use_fff ?? true) {
     yield* FffTools.register(ctx);
   }
+
+  yield* SessionGuidance.register(ctx);
 
   yield* ctx.agent.transform((editor) => {
     for (const id of ["build", "plan", "explore", "general"]) {
