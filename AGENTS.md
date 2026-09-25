@@ -1,7 +1,7 @@
 ## Critical Rules
 
 1. MUST use `bun` for package management and running scripts.
-2. Run `bun run lint` for lint errors, then `bun run typecheck` for type errors. Don't run `format` — formatting is applied via `bun run fix` and the pre-commit hook.
+2. Run `bun run lint` for lint errors, then `bun run typecheck` for type errors. Don't use bare `tsc` from the repo root. Don't run `format` — formatting is applied via `bun run fix` and the pre-commit hook.
 3. Plugin entry is `src/index.ts`: default-export `Plugin.define({ id: "academy", effect })` from `@opencode/plugin/effect`. The effect runs in a managed scope; scoped registrations are disposed when the plugin unloads.
 4. Transforms are synchronous edits of domain state: load external data before registering, then call `reload()` when captured inputs change. Later transforms see earlier ones; a read value is never mutated by later rebuilds.
 5. Academy owns the Umamusume agent roster: Rudolf is the default primary agent; Agnes, Cafe, Dantsu, and Bellno are specialist subagents. Register them through `ctx.agent.transform`, not project or user configuration.
@@ -52,9 +52,3 @@ Optimize the design for the normal flow. If the happy path is 95% of behavior, i
 - Decode untrusted data with `Schema` at the boundary rather than asserting types or wrapping `JSON.parse` in `Effect.try`.
 - Bind services before calling their methods. Do not nest calls on a yielded service.
 - Use one `ManagedRuntime` per process only when code must cross from Promise callbacks into Effect. Plugin entrypoints do not need one.
-
-## Maintenance & Tasks
-
-- MUST use `bun` for package management.
-- Run `lint` command to check for linting errors, then run `typecheck` for type errors. DON'T use bare `tsc` from the repo root and DON'T run `format` — it's triggered automatically by other pipelines.
-- Follow conventional commits: `type(scope): summary` with types `feat`, `fix`, `docs`, `chore`, `refactor`, `test`.
