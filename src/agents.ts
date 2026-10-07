@@ -90,7 +90,7 @@ export const agents: readonly AcademyAgent[] = [
       "Librarian-style external research for official docs, API behavior, dependency internals, and remote repositories.",
     id: "cafe",
     mode: "subagent",
-    model: "openai/gpt-6-sol#none",
+    model: "openai/gpt-6.1-sol#low",
     name: "Cafe",
     permissions: [
       ...defaultPermissions,
@@ -135,7 +135,7 @@ export const agents: readonly AcademyAgent[] = [
       "Read-only general reviewer for complete, systematic reviews of diffs, commits, branches, and pull requests.",
     id: "bellno",
     mode: "subagent",
-    model: "openai/gpt-6-sol#high",
+    model: "openai/gpt-6-astra#medium",
     name: "Bellno",
     permissions: [
       ...defaultPermissions,
