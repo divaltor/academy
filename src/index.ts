@@ -40,7 +40,7 @@ const AcademyOptions = Schema.Struct({
 
 const setup = Effect.fn("Academy.setup")(function* setup(ctx: Plugin.Context) {
   const githubToken = yield* Config.option(
-    Config.redacted("GITHUB_TOKEN")
+    Config.Redacted("GITHUB_TOKEN")
   ).pipe(Effect.orDie);
   const options = yield* Schema.decodeUnknownEffect(AcademyOptions, {
     onExcessProperty: "error",

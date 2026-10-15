@@ -30,9 +30,9 @@
   },
   "dependencies": {
     "@ff-labs/fff-bun": "0.11.0",
-    "@opencode/plugin": "2.0.11",
-    "@opencode/schema": "2.0.11",
-    "effect": "4.0.0-rc.112"
+    "@opencode/plugin": "2.0.29",
+    "@opencode/schema": "2.0.29",
+    "effect": "4.0.1"
   },
   "devDependencies": {
     "@types/bun": "1.4.2",
