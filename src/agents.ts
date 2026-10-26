@@ -1,10 +1,5 @@
-import agnesSystem from "./agents/agnes.txt" with { type: "text" };
 import bellnoSystem from "./agents/bellno.txt" with { type: "text" };
-import cafeSystem from "./agents/cafe.txt" with { type: "text" };
-import dantsuSystem from "./agents/dantsu.txt" with { type: "text" };
-import rudolfSystem from "./agents/rudolf.txt" with { type: "text" };
-
-export { default as rudolfCommunicationPrompt } from "./agents/rudolf-communication.txt" with { type: "text" };
+import codingSystem from "./agents/coding.txt" with { type: "text" };
 
 interface Permission {
   readonly action: string;
@@ -12,7 +7,7 @@ interface Permission {
   readonly effect: "allow" | "ask" | "deny";
 }
 
-const agentIds = ["agnes", "bellno", "cafe", "dantsu", "rudolf"] as const;
+const agentIds = ["bellno", "cafe", "rudolf"] as const;
 
 interface AcademyAgent {
   readonly id: (typeof agentIds)[number];
@@ -29,9 +24,14 @@ const defaultPermissions: readonly Permission[] = [
   { action: "*", effect: "allow", resource: "*" },
 ];
 
-const specialistSessionPermissions: readonly Permission[] = [
-  { action: "academy_session_create", effect: "deny", resource: "*" },
-  { action: "academy_session_control", effect: "deny", resource: "*" },
+const codingPermissions: readonly Permission[] = [
+  ...defaultPermissions,
+  { action: "todowrite", effect: "deny", resource: "*" },
+  { action: "websearch", effect: "allow", resource: "*" },
+  { action: "webfetch", effect: "allow", resource: "*" },
+  { action: "grep", effect: "allow", resource: "*" },
+  { action: "glob", effect: "allow", resource: "*" },
+  { action: "subagent", effect: "deny", resource: "*" },
 ];
 
 export const agents: readonly AcademyAgent[] = [
@@ -43,91 +43,25 @@ export const agents: readonly AcademyAgent[] = [
     mode: "primary",
     name: "Rudolf",
     permissions: [
-      ...defaultPermissions,
-      { action: "todowrite", effect: "deny", resource: "*" },
-      { action: "websearch", effect: "allow", resource: "*" },
-      { action: "webfetch", effect: "allow", resource: "*" },
-      { action: "grep", effect: "allow", resource: "*" },
-      { action: "glob", effect: "allow", resource: "*" },
+      ...codingPermissions,
       { action: "question", effect: "allow", resource: "*" },
-      { action: "academy_github_*", effect: "allow", resource: "*" },
-      { action: "subagent", effect: "deny", resource: "*" },
-      { action: "subagent", effect: "allow", resource: "agnes" },
       { action: "subagent", effect: "allow", resource: "cafe" },
-      { action: "subagent", effect: "allow", resource: "dantsu" },
       { action: "subagent", effect: "allow", resource: "bellno" },
     ],
-    system: rudolfSystem,
+    system: `You are **Rudolf**, the primary coding agent. Work directly by default and deliver correct, scoped results.\n\n${codingSystem}`,
   },
   {
-    color: "#db696b",
+    color: "#8FA876",
     description:
-      "Oracle-style read-only advisor for architecture decisions, debugging, alternatives, and high-impact plans.",
-    id: "agnes",
-    mode: "subagent",
-    model: "openai/gpt-6-astra#xhigh",
-    name: "Agnes",
-    permissions: [
-      ...defaultPermissions,
-      ...specialistSessionPermissions,
-      { action: "edit", effect: "deny", resource: "*" },
-      { action: "shell", effect: "deny", resource: "*" },
-      { action: "subagent", effect: "deny", resource: "*" },
-      { action: "subagent", effect: "allow", resource: "dantsu" },
-      { action: "subagent", effect: "allow", resource: "cafe" },
-      { action: "todowrite", effect: "deny", resource: "*" },
-      { action: "websearch", effect: "deny", resource: "*" },
-      { action: "webfetch", effect: "deny", resource: "*" },
-      { action: "grep", effect: "allow", resource: "*" },
-      { action: "glob", effect: "allow", resource: "*" },
-      { action: "academy_github_*", effect: "deny", resource: "*" },
-    ],
-    system: agnesSystem,
-  },
-  {
-    color: "#484951",
-    description:
-      "Librarian-style external research for official docs, API behavior, dependency internals, and remote repositories.",
+      "General-purpose coding subagent for independent research, discovery, and implementation. Run several in parallel for non-overlapping work.",
     id: "cafe",
     mode: "subagent",
-    model: "openai/gpt-6.1-sol#low",
     name: "Cafe",
     permissions: [
-      ...defaultPermissions,
-      ...specialistSessionPermissions,
-      { action: "edit", effect: "deny", resource: "*" },
-      { action: "shell", effect: "deny", resource: "*" },
-      { action: "subagent", effect: "deny", resource: "*" },
-      { action: "todowrite", effect: "deny", resource: "*" },
-      { action: "websearch", effect: "allow", resource: "*" },
-      { action: "webfetch", effect: "allow", resource: "*" },
-      { action: "grep", effect: "allow", resource: "*" },
-      { action: "glob", effect: "allow", resource: "*" },
-      { action: "academy_github_*", effect: "allow", resource: "*" },
+      ...codingPermissions,
+      { action: "question", effect: "deny", resource: "*" },
     ],
-    system: cafeSystem,
-  },
-  {
-    color: "#eb6f92",
-    description:
-      "Finder-style local codebase discovery by behavior, ownership boundary, and call or data flow.",
-    id: "dantsu",
-    mode: "subagent",
-    model: "openai/gpt-6-luna#high",
-    name: "Dantsu",
-    permissions: [
-      ...defaultPermissions,
-      ...specialistSessionPermissions,
-      { action: "edit", effect: "deny", resource: "*" },
-      { action: "subagent", effect: "deny", resource: "*" },
-      { action: "todowrite", effect: "deny", resource: "*" },
-      { action: "websearch", effect: "deny", resource: "*" },
-      { action: "webfetch", effect: "deny", resource: "*" },
-      { action: "grep", effect: "allow", resource: "*" },
-      { action: "glob", effect: "allow", resource: "*" },
-      { action: "academy_github_*", effect: "deny", resource: "*" },
-    ],
-    system: dantsuSystem,
+    system: `You are **Cafe**, a coding subagent working on a task delegated by another agent. Complete it directly and return a result the caller can verify.\n\n${codingSystem}`,
   },
   {
     color: "#d99aae",
@@ -139,13 +73,11 @@ export const agents: readonly AcademyAgent[] = [
     name: "Bellno",
     permissions: [
       ...defaultPermissions,
-      ...specialistSessionPermissions,
       { action: "edit", effect: "deny", resource: "*" },
       { action: "subagent", effect: "deny", resource: "*" },
       { action: "todowrite", effect: "deny", resource: "*" },
       { action: "websearch", effect: "deny", resource: "*" },
       { action: "webfetch", effect: "deny", resource: "*" },
-      { action: "academy_github_*", effect: "allow", resource: "*" },
     ],
     system: bellnoSystem,
   },

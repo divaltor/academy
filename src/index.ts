@@ -1,9 +1,8 @@
 import { Agent, Model, Plugin } from "@opencode/plugin/effect";
-import { Config, Effect, Option, Redacted, Schema } from "effect";
+import { Effect, Schema } from "effect";
 
-import { agents, rudolfCommunicationPrompt } from "./agents";
+import { agents } from "./agents";
 import { FffTools } from "./fff-tools";
-import { SessionCommunication } from "./session-communication";
 import { SessionGuidance } from "./session-guidance";
 
 const ModelReference = Schema.NonEmptyString.check(
@@ -21,27 +20,17 @@ const AgentOptions = Schema.Struct({
 });
 
 const AgentsOptions = Schema.Struct({
-  agnes: Schema.optionalKey(AgentOptions),
   bellno: Schema.optionalKey(AgentOptions),
   cafe: Schema.optionalKey(AgentOptions),
-  dantsu: Schema.optionalKey(AgentOptions),
   rudolf: Schema.optionalKey(AgentOptions),
-});
-
-const ExperimentalOptions = Schema.Struct({
-  communication: Schema.optionalKey(SessionCommunication.Options),
 });
 
 const AcademyOptions = Schema.Struct({
   agents: Schema.optionalKey(AgentsOptions),
-  experimental: Schema.optionalKey(ExperimentalOptions),
   use_fff: Schema.optionalKey(Schema.Boolean),
 });
 
 const setup = Effect.fn("Academy.setup")(function* setup(ctx: Plugin.Context) {
-  const githubToken = yield* Config.option(
-    Config.Redacted("GITHUB_TOKEN")
-  ).pipe(Effect.orDie);
   const options = yield* Schema.decodeUnknownEffect(AcademyOptions, {
     onExcessProperty: "error",
   })(ctx.options).pipe(Effect.orDie);
@@ -61,30 +50,12 @@ const setup = Effect.fn("Academy.setup")(function* setup(ctx: Plugin.Context) {
       .map((agent) => agentID(agent.id))
   );
   const rudolfDisabled = disabledAgentIDs.has(agentID("rudolf"));
-  const communication = options.experimental?.communication;
-  const communicationEnabled = communication?.enabled === true;
 
   if (new Set(configuredAgentIDs).size !== configuredAgentIDs.length) {
     return yield* Effect.die(
       new Error("Academy agent names must produce unique agent IDs")
     );
   }
-
-  yield* ctx.mcp.transform((editor) => {
-    if (Option.isNone(githubToken)) {
-      return;
-    }
-
-    editor.set("academy_github", {
-      headers: {
-        Authorization: `Bearer ${Redacted.value(githubToken.value)}`,
-        "X-MCP-Toolsets": "repos,issues,pull_requests",
-      },
-      oauth: false,
-      type: "remote",
-      url: "https://api.githubcopilot.com/mcp/readonly",
-    });
-  });
 
   if (options.use_fff ?? true) {
     yield* FffTools.register(ctx);
@@ -115,15 +86,8 @@ const setup = Effect.fn("Academy.setup")(function* setup(ctx: Plugin.Context) {
         agent.hidden = disabledAgentIDs.has(agentID(definition.id));
         agent.color =
           agentOptions[definition.id]?.color ?? agent.color ?? definition.color;
-        const base =
-          definition.id === "rudolf" && communicationEnabled
-            ? definition.system.replace(
-                "# Communication",
-                `${rudolfCommunicationPrompt}\n\n# Communication`
-              )
-            : definition.system;
-        agent.system = base.replaceAll(
-          /\b(?:Rudolf|Agnes|Cafe|Dantsu|Bellno)\b/gu,
+        agent.system = definition.system.replaceAll(
+          /\b(?:Rudolf|Cafe|Bellno)\b/gu,
           (name) => agentNames.get(name) ?? name
         );
         agent.permissions = definition.permissions.map((permission) => {
@@ -166,15 +130,6 @@ const setup = Effect.fn("Academy.setup")(function* setup(ctx: Plugin.Context) {
 
     editor.default(agentID("rudolf"));
   });
-
-  if (communication !== undefined && communicationEnabled) {
-    yield* SessionCommunication.register(
-      ctx,
-      communication,
-      agentID("rudolf"),
-      disabledAgentIDs
-    );
-  }
 });
 
 export default Plugin.define({
