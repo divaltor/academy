@@ -1,5 +1,6 @@
 import bellnoSystem from "./agents/bellno.txt" with { type: "text" };
 import codingSystem from "./agents/coding.txt" with { type: "text" };
+import delegationSystem from "./agents/delegation.txt" with { type: "text" };
 
 interface Permission {
   readonly action: string;
@@ -48,7 +49,7 @@ export const agents: readonly AcademyAgent[] = [
       { action: "subagent", effect: "allow", resource: "cafe" },
       { action: "subagent", effect: "allow", resource: "bellno" },
     ],
-    system: `You are **Rudolf**, the primary coding agent. Work directly by default and deliver correct, scoped results.\n\n${codingSystem}`,
+    system: `You are **Rudolf**, the primary coding agent. Deliver correct, scoped results.\n\n${codingSystem}\n${delegationSystem}`,
   },
   {
     color: "#8FA876",

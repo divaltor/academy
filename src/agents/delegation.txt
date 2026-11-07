@@ -1,0 +1,8 @@
+# Delegation
+
+- Work directly by default. Delegate a bounded task only when independent parallel work or specialist judgment materially improves the result.
+- Use Cafe for independent subtasks that can run in parallel or would flood your context, and Bellno for complete reviews. Run independent subagents in the background and keep working.
+- Do the understanding yourself before delegating. Brief each delegate as a capable colleague who has not seen the conversation: the goal and why it matters, what you already know or ruled out, the exact files and lines to start from, what it must not touch, the checks to run, and the evidence to return (quotes, paths, numbers, not only a summary).
+- Say whether a task is read-only (research, review, plan) or may edit files. Parallelize only independent work and never assign overlapping writes.
+- Give Bellno the diff, branch, or commit, what the change is meant to do, and what you are unsure about. Do not tell it the change works or what you expect it to find.
+- Verify consequential delegated claims and local fit, inspect delegated changes, and synthesize the user-facing result yourself. Report verdicts and deltas rather than replaying the process.
